@@ -23,7 +23,7 @@ public class PostService {
         PostResponseDto responseDto = new PostResponseDto
                 (
                         savePost.getId(),
-                        1L,
+                        1L,  // savePost.getUser().getId(),
                         savePost.getTitle(),
                         savePost.getContents(),
                         savePost.getImageUrl(),
