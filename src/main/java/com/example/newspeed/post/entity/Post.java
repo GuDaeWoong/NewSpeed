@@ -1,5 +1,7 @@
-package com.example.newspeed.entity;
+package com.example.newspeed.post.entity;
 
+import com.example.newspeed.user.entity.User;
+import com.example.newspeed.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Entity
 @Table(name = "post")
-public class Post extends BaseEntity{
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
