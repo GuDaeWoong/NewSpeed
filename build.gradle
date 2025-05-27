@@ -24,13 +24,23 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//핵심 기능 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // JPA를 이용한 DB 연동
+    implementation 'org.springframework.boot:spring-boot-starter-web'       // 웹 개발용 기본 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // 데이터 유효성 검사 기능 (@Valid)
+
+//보안 관련
+    implementation 'org.springframework.security:spring-security-crypto'    // 암호화, 비밀번호 해싱 등 보안 기능 (crypto만 사용)
+
+//데이터베이스 드라이버
+    runtimeOnly 'com.mysql:mysql-connector-j'                             // MySQL 데이터베이스 연결 드라이버
+
+//코드 자동 생성 (컴파일 시점)
+    annotationProcessor 'org.projectlombok:lombok'                          // Lombok 애노테이션 프로세서
+
+//테스트 관련 라이브러리
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'  // 테스트용 라이브러리 모음
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'          // JUnit 테스트 실행 플랫폼
 }
 
 tasks.named('test') {
