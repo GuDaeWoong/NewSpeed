@@ -35,7 +35,7 @@ public class JwtTokenProvider {
 
     //Access Token : 로그인 후 API 호출에 사용
     public String createAccessToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds);
+        return createToken(userId, tokenValidityInMilliseconds / 4);
     }
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
@@ -137,5 +137,14 @@ public class JwtTokenProvider {
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString());
+    }
+
+    public void deleteRefreshToken(HttpServletResponse response) {
+        //클라이언트 쿠키에서 삭제 (MaxAge = 0)
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
