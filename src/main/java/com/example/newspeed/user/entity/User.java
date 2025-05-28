@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 public class User extends BaseEntity {
 
     @Id
