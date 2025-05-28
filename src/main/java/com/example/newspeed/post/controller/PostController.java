@@ -33,7 +33,12 @@ public class PostController {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
-        PostResponseDto responseDto = postService.createPost(dto.getTitle(), dto.getContents(), dto.getImageUrl(),currentUserId);
+        PostResponseDto responseDto = postService.createPost(
+                currentUserId,
+                dto.getTitle(),
+                dto.getContents(),
+                dto.getImageUrl()
+        );
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

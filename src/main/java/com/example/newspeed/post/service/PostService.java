@@ -10,10 +10,7 @@ import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,18 +22,18 @@ public class PostService {
     private final UserService userService;
     private final SecurityConfig securityConfig;
 
-    public PostService(PostRepository postRepository, UserService userService, PasswordEncoder passwordEncoder, SecurityConfig securityConfig) {
+    public PostService(PostRepository postRepository, UserService userService, SecurityConfig securityConfig) {
         this.postRepository = postRepository;
         this.userService = userService;
         this.securityConfig = securityConfig;
     }
 
     @Transactional
-    public PostResponseDto createPost(String title, String content, String imageUrl, Long currentUserId) {
+    public PostResponseDto createPost(Long currentUserId, String title, String contents, String imageUrl) {
 
         User user = userService.findUserById(currentUserId);
 
-        Post newPost = new Post(user, title, content, imageUrl);
+        Post newPost = new Post(user, title, contents, imageUrl);
 
         Post savePost = postRepository.save(newPost);
 
@@ -47,6 +44,7 @@ public class PostService {
                         savePost.getTitle(),
                         savePost.getContents(),
                         savePost.getImageUrl(),
+                        savePost.getUser().getUserUrl(),
                         savePost.getCreatedAt(),
                         savePost.getModifiedAt()
                 );
@@ -70,7 +68,7 @@ public class PostService {
 
         FindPostResponseDto responseDto = new FindPostResponseDto(
                 id,
-                "닉네임", // post.getUser().getNickname,
+                post.getUser().getNickname(),
                 post.getTitle(),
                 post.getContents(),
                 post.getImageUrl(),
