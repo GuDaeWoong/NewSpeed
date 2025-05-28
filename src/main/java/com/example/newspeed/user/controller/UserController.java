@@ -3,6 +3,7 @@ package com.example.newspeed.user.controller;
 import com.example.newspeed.user.dto.CreateUserRequestDto;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class UserController {
      * @return 생성된 유저 정보
      */
     @PostMapping("/signup")
-    public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
+    public ResponseEntity<CreateUserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto requestDto) {
 
         CreateUserResponseDto responseDto = userService.createUser(requestDto.getEmail(),
                                                                    requestDto.getNickname(),
