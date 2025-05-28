@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;
@@ -54,5 +54,12 @@ public class PostController {
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<FindPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
+
+        FindPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
 }
