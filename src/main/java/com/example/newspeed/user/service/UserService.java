@@ -3,6 +3,7 @@ package com.example.newspeed.user.service;
 
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
+import com.example.newspeed.user.dto.FindUserResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -28,7 +29,14 @@ public class UserService {
         return CreateUserResponseDto.toDto(userRepository.save(user));
     }
 
-    @Transactional
+
+    public FindUserResponseDto findByIdUser(Long userId) {
+        User findUser = userRepository.findByIdOrElseThrow(userId);
+
+        return FindUserResponseDto.toDto(findUser);
+    }
+
+
     public User findUserById(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.get();
