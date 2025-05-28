@@ -122,9 +122,19 @@ public class JwtTokenProvider {
     }
 
     //Security 에서 userId 생성
-    public Long getUserIdFromSecurity(){
-        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public Long getUserIdFromSecurity() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return null;
+        }
+        try {
+            return (Long) authentication.getPrincipal();
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
+
 
     //refresh token 쿠키 저장
     public void setRefreshTokenToCookie(TokenResponse token, HttpServletResponse response){

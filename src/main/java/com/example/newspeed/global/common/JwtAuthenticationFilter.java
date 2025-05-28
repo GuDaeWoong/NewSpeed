@@ -33,9 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String httpMethod = request.getMethod();
 
         //로그인 상태인지 확인
-        boolean isLoggedIn = refreshToken != null;
+        boolean isLoggedIn = jwtTokenProvider.getUserIdFromSecurity() != null;
 
-        whiteListManager.validateWhitelistAccess(isLoggedIn, requestURI, httpMethod, response);
+        if(!whiteListManager.validateWhitelistAccess(isLoggedIn, requestURI, httpMethod, response)) return;
 
         //refresh token 이 null 일 경우 바로 다음 필터 진입
         if(refreshToken == null) {
