@@ -1,11 +1,16 @@
 package com.example.newspeed.post.controller;
 
+
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/post")
@@ -25,5 +30,14 @@ public class PostController {
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<List<FindPostResponseDto>> findAllAPI() {
+
+        List<FindPostResponseDto> allPost = postService.findAllPost();
+
+        return new ResponseEntity<>(allPost, HttpStatus.OK);
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.newspeed.post.dto;
 
+import com.example.newspeed.post.entity.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

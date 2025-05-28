@@ -1,10 +1,18 @@
 package com.example.newspeed.post.service;
 
+import com.example.newspeed.post.dto.FindPostResponseDto;
+import com.example.newspeed.post.dto.PostResponseDto;
+import com.example.newspeed.post.entity.Post;
+import com.example.newspeed.post.repository.PostRepository;
+import jakarta.transaction.Transactional;
+
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class PostService {
@@ -25,7 +33,9 @@ public class PostService {
         PostResponseDto responseDto = new PostResponseDto
                 (
                         savePost.getId(),
-                        1L,  // savePost.getUser().getId(),
+                        savePost.getUser().getId(),
+                        // 작성자 닉네임
+                        // 본인 프로필파일 url
                         savePost.getTitle(),
                         savePost.getContents(),
                         savePost.getImageUrl(),
@@ -35,4 +45,11 @@ public class PostService {
 
         return responseDto;
     }
+
+    @Transactional
+    public List<FindPostResponseDto> findAllPost() {
+
+        return postRepository.findAll().stream().map(FindPostResponseDto::toPostDto).toList();
+    }
+
 }
