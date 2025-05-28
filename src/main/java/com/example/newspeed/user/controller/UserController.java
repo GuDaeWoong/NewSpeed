@@ -2,7 +2,9 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.user.dto.CreateUserRequestDto;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
+import com.example.newspeed.user.dto.FindUserResponseDto;
 import com.example.newspeed.user.service.UserService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +28,13 @@ public class UserController {
                                                                    requestDto.getNickname(),
                                                                    requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<FindUserResponseDto> findByIdUser(@PathVariable Long userId) {
+
+        FindUserResponseDto findUserResponseDto = userService.findByIdUser(userId);
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 }
