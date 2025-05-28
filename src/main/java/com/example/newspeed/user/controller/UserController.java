@@ -1,10 +1,8 @@
 package com.example.newspeed.user.controller;
 
-import com.example.newspeed.user.dto.CreateUserRequestDto;
-import com.example.newspeed.user.dto.CreateUserResponseDto;
-import com.example.newspeed.user.dto.FindUserResponseDto;
+import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.user.dto.*;
 import com.example.newspeed.user.service.UserService;
-import lombok.Getter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 유저 생성 (회원가입)
@@ -39,5 +38,18 @@ public class UserController {
         FindUserResponseDto findUserResponseDto = userService.findByIdUser(userId);
 
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@RequestBody UpdateProfileRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
+                                                                         requestDto.getNickname(),
+                                                                         requestDto.getUserUrl(),
+                                                                         requestDto.getPassword());
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }
