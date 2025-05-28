@@ -13,7 +13,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/posts")
 public class PostController {
 
     private final PostService postService;
@@ -37,6 +37,15 @@ public class PostController {
         List<FindPostResponseDto> allPost = postService.findAllPost();
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
+    }
+
+    // 게시글 단건 조회 API
+    @GetMapping("/{id}")
+    public ResponseEntity<FindPostResponseDto> findOneAPI(@PathVariable Long id) {
+
+        FindPostResponseDto findOnePost = postService.findOnePost(id);
+
+        return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
 

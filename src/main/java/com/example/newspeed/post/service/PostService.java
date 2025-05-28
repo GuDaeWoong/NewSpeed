@@ -52,4 +52,25 @@ public class PostService {
         return postRepository.findAll().stream().map(FindPostResponseDto::toPostDto).toList();
     }
 
+
+    // 게시글 단건 조회 기능
+    @Transactional
+    public FindPostResponseDto findOnePost(Long id) {
+
+        // 레포지토리에서 생성한 기능을 사용
+        Post post = postRepository.findByIdOrElseThrow(id);
+
+        FindPostResponseDto responseDto = new FindPostResponseDto(
+                id,
+                "닉네임", // post.getUser().getNickname,
+                post.getTitle(),
+                post.getContents(),
+                post.getImageUrl(),
+                post.getCreatedAt(),
+                post.getModifiedAt()
+        );
+
+        return responseDto;
+    }
+
 }
