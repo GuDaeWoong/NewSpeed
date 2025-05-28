@@ -7,9 +7,9 @@ import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
 
+    // 유저 생성 (회원가입)
     @Transactional
     public CreateUserResponseDto createUser(String email, String nickname, String userUrl, String password) {
         // 암호화
@@ -27,9 +28,9 @@ public class UserService {
         return CreateUserResponseDto.toDto(userRepository.save(user));
     }
 
+    @Transactional
     public User findUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                                  .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return user;
+        Optional<User> user = userRepository.findById(userId);
+        return user.get();
     }
 }
