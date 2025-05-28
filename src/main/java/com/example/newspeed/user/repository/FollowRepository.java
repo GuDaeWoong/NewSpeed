@@ -9,4 +9,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     Optional<Follow> findByUserIdAndFollowId(Long userId, Long followId);
 
+    // 유저가 팔로우한 유저 수 카운트
+    long countByUserId(Long userId);
+
 }
