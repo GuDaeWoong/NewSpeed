@@ -17,6 +17,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
+    private final WhiteListManager whiteListManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -24,6 +25,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //토큰 얻기
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
+
+        //입력받은 URI
+        String requestURI = request.getRequestURI();
+
+        //GET, POST 등 요청받은 메소드 방식
+        String httpMethod = request.getMethod();
+
+        //로그인 상태인지 확인
+        boolean isLoggedIn = refreshToken != null;
+
+        whiteListManager.validateWhitelistAccess(isLoggedIn, requestURI, httpMethod, response);
 
         //refresh token 이 null 일 경우 바로 다음 필터 진입
         if(refreshToken == null) {
@@ -43,16 +55,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         else if(jwtTokenProvider.validateToken(refreshToken)){
                 Token dbToken = tokenRepository.findByRefreshToken(refreshToken).orElse(null);
                 if(dbToken != null){
-                    // 토큰이 유효하면 토큰으로부터 유저 정보 받기
-                    Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-                    // SecurityContext 에 Authentication 객체를 저장
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    //refresh token 에서 userId 추출 → 새로운 access token 발급
+                    //refresh token 에서 userId 추출
                     Long userId = jwtTokenProvider.getUserIdByToken(refreshToken);
 
-                    //발급 받은 토큰 리턴
+                    //새로운 access token 발급
                     String newAccessToken = jwtTokenProvider.createAccessToken(userId);
+
+                    //토큰으로부터 Authentication 생성
+                    Authentication authentication = jwtTokenProvider.getAuthentication(newAccessToken);
+                    
+                    // SecurityContext 에 Authentication 객체를 저장
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     //새로운 토큰 헤더에 포함
                     response.setHeader("Authorization", "Bearer " + newAccessToken);
