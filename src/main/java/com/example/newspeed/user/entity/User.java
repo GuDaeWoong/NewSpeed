@@ -4,6 +4,7 @@ import com.example.newspeed.global.entity.BaseEntity;
 import com.example.newspeed.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.apache.logging.log4j.util.Strings;
 
 import java.util.List;
 
@@ -40,5 +41,15 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.userUrl = userUrl;
         this.password = password;
+    }
+
+    public void updateProfile(String nickname, String userUrl) {
+        if (Strings.isNotBlank(nickname)) {
+            this.nickname = nickname;
+        }
+
+        if (Strings.isNotBlank(userUrl)) {
+            this.userUrl = userUrl;
+        }
     }
 }

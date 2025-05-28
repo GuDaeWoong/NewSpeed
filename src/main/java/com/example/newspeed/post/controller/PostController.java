@@ -2,6 +2,7 @@ package com.example.newspeed.post.controller;
 
 
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.post.dto.DeletePostRequestDto;
 import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
@@ -15,7 +16,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;
@@ -54,5 +55,19 @@ public class PostController {
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<FindPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
+        FindPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
+
+        postService.deletePost(id, dto.getPassword());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

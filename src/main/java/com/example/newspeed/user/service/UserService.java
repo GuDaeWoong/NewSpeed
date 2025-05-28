@@ -4,6 +4,7 @@ package com.example.newspeed.user.service;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.dto.FindUserResponseDto;
+import com.example.newspeed.user.dto.UpdateProfileResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -43,5 +44,20 @@ public class UserService {
     public User findUserById(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.get();
+    }
+
+    @Transactional
+    public UpdateProfileResponseDto updateProfile(Long userId, String nickname, String userUrl, String password) {
+
+        User findUser = userRepository.findByIdOrElseThrow(userId);
+
+        // Dto의 password와 현재 DB의 비밀번호가 일치하는지 확인
+        passwordManager.validatePasswordMatchOrThrow(password, findUser.getPassword());
+
+        // 프로필 수정
+        findUser.updateProfile(nickname, userUrl);
+        userRepository.save(findUser);
+
+        return UpdateProfileResponseDto.toDto(findUser);
     }
 }
