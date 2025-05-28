@@ -23,7 +23,7 @@ public class UserController {
     public ResponseEntity<CreateUserResponseDto> createUser(@RequestBody CreateUserRequestDto requestDto) {
 
         CreateUserResponseDto responseDto = userService.createUser(requestDto.getEmail(),
-                                                                   requestDto.getUsername(),
+                                                                   requestDto.getNickname(),
                                                                    requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

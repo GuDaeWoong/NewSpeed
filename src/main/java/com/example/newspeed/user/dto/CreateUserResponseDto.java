@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 public class CreateUserResponseDto {
     private Long id;
-    private String username;
+    private String nickname;
     private String email;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -17,7 +17,7 @@ public class CreateUserResponseDto {
         final CreateUserResponseDto response = new CreateUserResponseDto();
 
         response.id = user.getId();
-        response.username = user.getNickname();
+        response.nickname = user.getNickname();
         response.email = user.getEmail();
         response.createdAt = user.getCreatedAt();
         response.modifiedAt = user.getModifiedAt();
