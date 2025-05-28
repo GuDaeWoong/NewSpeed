@@ -66,6 +66,7 @@ public class PostService {
         return responseDto;
     }
 
+
     // postId를 입력받아 Post객체로 반환
     @Transactional
     public Post findPostById(Long id) {
