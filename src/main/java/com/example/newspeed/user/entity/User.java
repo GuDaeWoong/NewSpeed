@@ -52,4 +52,8 @@ public class User extends BaseEntity {
             this.userUrl = userUrl;
         }
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

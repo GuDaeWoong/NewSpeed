@@ -57,4 +57,20 @@ public class UserService {
 
         return UpdateProfileResponseDto.toDto(findUser);
     }
+
+    @Transactional
+    public void updatePassword(Long userId, String oldPassword, String newPassword) {
+
+        User findUser = userRepository.findByIdOrElseThrow(userId);
+
+        // Dto의 password와 현재 DB의 비밀번호가 일치하는지 확인
+        passwordManager.validatePasswordMatchOrThrow(oldPassword, findUser.getPassword());
+
+        // 암호화
+        String encodePassword = passwordManager.encodePassword(newPassword);
+
+        // 비밀번호 수정
+        findUser.updatePassword(encodePassword);
+        userRepository.save(findUser);
+    }
 }
