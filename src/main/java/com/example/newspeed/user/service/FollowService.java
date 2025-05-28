@@ -37,4 +37,11 @@ public class FollowService {
             followRepository.save(new Follow(user, follow));
         }
     }
+
+    // 팔로우 수 카운팅 메서드
+    public long getFollowCount(Long userId) {
+        return followRepository.countByUserId(userId);
+    }
+
+
 }
