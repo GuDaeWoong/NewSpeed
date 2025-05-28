@@ -17,7 +17,7 @@ public class CreateUserResponseDto {
         final CreateUserResponseDto response = new CreateUserResponseDto();
 
         response.id = user.getId();
-        response.username = user.getUsername();
+        response.username = user.getNickname();
         response.email = user.getEmail();
         response.createdAt = user.getCreatedAt();
         response.modifiedAt = user.getModifiedAt();
