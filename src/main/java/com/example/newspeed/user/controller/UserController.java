@@ -20,8 +20,6 @@ public class UserController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    private final JwtTokenProvider jwtTokenProvider;
-
     /**
      * 유저 생성 (회원가입)
      *
