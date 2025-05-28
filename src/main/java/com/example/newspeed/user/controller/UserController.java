@@ -9,14 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     /**
      * 유저 생성 (회원가입)
-     * @param requestDto 이메일, 닉네임, 패스워드
+     *
+     * @param requestDto 이메일, 닉네임, 프로필이미지url, 패스워드
      * @return 생성된 유저 정보
      */
     @PostMapping("/signup")
@@ -24,6 +25,7 @@ public class UserController {
 
         CreateUserResponseDto responseDto = userService.createUser(requestDto.getEmail(),
                                                                    requestDto.getNickname(),
+                                                                   requestDto.getUserUrl(),
                                                                    requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

@@ -14,9 +14,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CreateUserResponseDto createUser(String email, String nickname, String password) {
+    public CreateUserResponseDto createUser(String email, String nickname, String userUrl, String password) {
 
-        User user = new User(email, nickname, password);
+        User user = new User(email, nickname, userUrl, password);
 
         return CreateUserResponseDto.toDto(userRepository.save(user));
     }
