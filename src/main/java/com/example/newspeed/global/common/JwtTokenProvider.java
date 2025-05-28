@@ -25,7 +25,7 @@ public class JwtTokenProvider {
     private Key key;
 
     //토큰 유지 시간 (1시간)
-    private final long tokenValidityInMilliseconds = 1000 * 60 * 60;
+    private final long tokenValidityInMilliseconds = 1000 * 30;
 
     @PostConstruct
     protected void init() {
@@ -40,7 +40,7 @@ public class JwtTokenProvider {
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
     public String createRefreshToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds * 2);
+        return createToken(userId, tokenValidityInMilliseconds * 6000);
     }
 
     //토큰 생성
@@ -69,16 +69,20 @@ public class JwtTokenProvider {
     }
 
     // Request의 Cookie에서 refreshtoken 값을 가져온다.
-    public String extractRefreshTokenFromCookie(HttpServletRequest request) {
+    public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if (cookies == null) return null;
+        if (cookies == null) return Optional.empty();
 
+        //쿠키에서 토큰 찾아서 유효성 검증 후 리턴
         for (Cookie cookie : cookies) {
             if ("refresh_token".equals(cookie.getName())) {
-                return cookie.getValue();
+                String refreshToken = cookie.getValue();
+                if(validateToken(refreshToken)){
+                    return Optional.ofNullable(cookie.getValue());
+                }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
 
