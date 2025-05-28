@@ -2,8 +2,10 @@ package com.example.newspeed.comment.service;
 
 import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
+import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
+import com.example.newspeed.global.error.PasswordMismatchException;
 import com.example.newspeed.global.error.UnauthorizedAccessException;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.service.PostService;
@@ -63,11 +65,26 @@ public class CommentService {
     public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId)
-                );
+                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
         if (!user.getId().equals(comment.getUser().getId())) {
             throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
         }
         comment.updateComment(commentRequestDto);
+    }
+
+    public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
+        User user = userService.findUserById(currentUserId);
+        Comment comment= commentRepository.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+
+        if (!user.getId().equals(comment.getUser().getId())) {
+            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+        }
+
+        if (!user.getPassword().equals(deleteDto.getPassword())) {
+            throw new PasswordMismatchException("The password you entered does not match.");
+        }
+        commentRepository.delete(comment);
+
     }
 }
