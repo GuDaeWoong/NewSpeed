@@ -1,9 +1,11 @@
 package com.example.newspeed.comment.entity;
 
+import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.global.entity.BaseEntity;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.user.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -36,5 +38,9 @@ public class Comment extends BaseEntity {
 
     public Comment() {
 
+    }
+
+    public void updateComment(@Valid CommentRequestDto commentRequestDto) {
+        this.contents = commentRequestDto.getContents();
     }
 }

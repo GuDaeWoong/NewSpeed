@@ -5,6 +5,7 @@ import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.common.JwtTokenProvider;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,15 +40,15 @@ public class CommentController {
         return new ResponseEntity<>(commentService.findAllCommentByPostId(postId), HttpStatus.OK);
     }
 
-//    // 댓글 업데이트
-//    @PatchMapping("/{commentId}")
-//    public ResponseEntity<Void> updateCommnet(@PathVariable Long commentId,
-//                                              @Valid @RequestBody CommentRequestDto commentRequestDto,
-//    ) {
-//        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
-//        commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    // 댓글 업데이트
+    @PatchMapping("/{commentId}")
+    public ResponseEntity<Void> updateCommnet(@PathVariable Long commentId,
+                                              @Valid @RequestBody CommentRequestDto commentRequestDto
+    ) {
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
 
