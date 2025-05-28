@@ -4,29 +4,33 @@ import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
+import com.example.newspeed.user.entity.User;
+import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 
-import com.example.newspeed.post.dto.PostResponseDto;
-import com.example.newspeed.post.entity.Post;
-import com.example.newspeed.post.repository.PostRepository;
+
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
+    private final UserService userService;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository,UserService userService) {
         this.postRepository = postRepository;
+        this.userService = userService;
     }
 
     @Transactional
-    public PostResponseDto createPost(String title, String content, String imageUrl) {
+    public PostResponseDto createPost(String title, String content, String imageUrl, Long currentUserId) {
 
-        Post newPost = new Post(title, content, imageUrl);
+        User user = userService.findUserById(currentUserId);
+
+        Post newPost = new Post(user, title, content, imageUrl);
 
         Post savePost = postRepository.save(newPost);
 
@@ -34,8 +38,6 @@ public class PostService {
                 (
                         savePost.getId(),
                         savePost.getUser().getId(),
-                        // 작성자 닉네임
-                        // 본인 프로필파일 url
                         savePost.getTitle(),
                         savePost.getContents(),
                         savePost.getImageUrl(),
@@ -71,6 +73,12 @@ public class PostService {
         );
 
         return responseDto;
+    }
+
+    @Transactional
+    public Post findPostById(Long id) {
+        Optional<Post> findPost = postRepository.findById(id);
+        return findPost.get();
     }
 
 }
