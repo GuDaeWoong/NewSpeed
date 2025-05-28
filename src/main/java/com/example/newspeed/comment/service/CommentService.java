@@ -4,14 +4,20 @@ import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
+import com.example.newspeed.global.error.UnauthorizedAccessException;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.service.PostService;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.service.UserService;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -22,6 +28,7 @@ public class CommentService {
     private final UserService userService;
     private final PostService postService;
 
+    @Transactional
     public CommentResponseDto saveComment(
             Long postId,
             CommentRequestDto requestDto,
@@ -52,17 +59,15 @@ public class CommentService {
                 .toList();
     }
 
-//    public void updateCommnet(Long commentId, CommentRequestDto commentRequestDto, Long currentUserId
-//    ) {
-//        Optional<Comment> comment = Optional.ofNullable(commentRepository.findById(commentId)
-//                .orElseThrow(() -> new CommentNotFoundException("Comment not found with ID: " + commentId))
-//        );
-//
-//        // 로그인한 사용자가 해당하는 댓글의 작성자 인가
-//        if (comment.get().getId().equals(currentUserId)) {
-//            throw new
-//        }
-//    }
-
-
+    @Transactional
+    public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
+        User user = userService.findUserById(currentUserId);
+        Comment comment= commentRepository.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId)
+                );
+        if (!user.getId().equals(comment.getUser().getId())) {
+            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+        }
+        comment.updateComment(commentRequestDto);
+    }
 }
