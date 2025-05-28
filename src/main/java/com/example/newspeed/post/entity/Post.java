@@ -20,12 +20,21 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String contents;
 
+    @Column(nullable = false)
+    private String imageUrl;
+
     @Setter
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     public Post() {
+    }
+
+    public Post(String title, String contents, String imageUrl) {
+        this.title = title;
+        this.contents = contents;
+        this.imageUrl = imageUrl;
     }
 
 }
