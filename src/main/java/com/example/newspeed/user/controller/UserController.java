@@ -2,6 +2,10 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.user.dto.*;
+import com.example.newspeed.user.dto.CreateUserRequestDto;
+import com.example.newspeed.user.dto.CreateUserResponseDto;
+import com.example.newspeed.user.dto.FindUserResponseDto;
+
 import com.example.newspeed.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
@@ -52,4 +58,18 @@ public class UserController {
                                                                          requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+    /**
+     * 로그인 유저 정보 조회 (마이페이지 조회)
+     * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
+     */
+    @GetMapping("/me")
+    public ResponseEntity<FindUserResponseDto> findMyPage() {
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        FindUserResponseDto findUserResponseDto = userService.findByIdUser(currentUserId);
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
+
+
 }
