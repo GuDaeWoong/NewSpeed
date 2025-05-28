@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api/users/follow")
 @RequiredArgsConstructor
@@ -22,6 +24,8 @@ public class FollowController {
     public ResponseEntity<Void> follow(@PathVariable Long id){
 
         Long userId = jwtTokenProvider.getUserIdFromSecurity();
+
+        if(Objects.equals(id, userId)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         followService.follow(new followDto(userId, id));
 
