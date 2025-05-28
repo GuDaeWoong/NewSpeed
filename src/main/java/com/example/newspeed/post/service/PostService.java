@@ -81,4 +81,37 @@ public class PostService {
         return findPost.get();
     }
 
+
+    // Post 게시글 수정 기능
+    @Transactional
+    public FindPostResponseDto updatedPost(Long id, String title, String contents, String imageUrl) {
+
+        Optional<Post> findById = postRepository.findById(id);
+        Post post = findById.get();
+
+        if (title != null) {
+            post.setTitle(title);
+        }
+
+        if (contents != null) {
+            post.setContents(contents);
+        }
+
+        if (imageUrl != null) {
+            post.setImageUrl(imageUrl);
+        }
+
+        FindPostResponseDto responseDto = new FindPostResponseDto(
+                post.getId(),
+                post.getUser().getNickname(),
+                post.getTitle(),
+                post.getContents(),
+                post.getImageUrl(),
+                post.getCreatedAt(),
+                post.getModifiedAt()
+        );
+
+        return responseDto;
+    }
 }
+
