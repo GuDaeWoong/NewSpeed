@@ -1,5 +1,6 @@
 package com.example.newspeed.post.controller;
 
+import com.example.newspeed.post.dto.FindAllPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.service.PostService;
@@ -30,9 +31,9 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> findAllAPI() {
+    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI() {
 
-        List<PostResponseDto> allPost = postService.findAllPost();
+        List<FindAllPostResponseDto> allPost = postService.findAllPost();
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }

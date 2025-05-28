@@ -25,16 +25,4 @@ public class PostResponseDto {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
-
-    public static PostResponseDto toPostDto(Post post) {
-        return new PostResponseDto(
-                post.getId(),
-                1L, // post.getUser().getId(),
-                post.getTitle(),
-                post.getContents(),
-                post.getImageUrl(),
-                post.getCreatedAt(),
-                post.getModifiedAt()
-        );
-    }
 }
