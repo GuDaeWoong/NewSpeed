@@ -30,7 +30,7 @@ public class AuthService {
         User user = loginRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        //passwordManager.validatePasswordMatchOrThrow(requestDto.getPassword(), user.getPassword());
+        passwordManager.validatePasswordMatchOrThrow(requestDto.getPassword(), user.getPassword());
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getId());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
