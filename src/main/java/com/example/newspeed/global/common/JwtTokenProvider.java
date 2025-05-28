@@ -25,11 +25,11 @@ public class JwtTokenProvider {
     private Key key;
 
     //토큰 유지 시간 (1시간)
-    private final long tokenValidityInMilliseconds = 1000 * 30;
+    private final long tokenValidityInMilliseconds = 1000 * 60 * 60;
 
     @PostConstruct
     protected void init() {
-        // HS512 알고리즘용 키 자동 생성
+        // HS256 알고리즘용 키 자동 생성
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
@@ -40,7 +40,7 @@ public class JwtTokenProvider {
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
     public String createRefreshToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds * 6000);
+        return createToken(userId, tokenValidityInMilliseconds * 168);
     }
 
     //토큰 생성
@@ -63,8 +63,8 @@ public class JwtTokenProvider {
 
     // Request의 Header에서 accesstoken 값을 가져온다.
     public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader("Authorization"))
-                .filter(header -> header.startsWith("Bearer "))
+        return Optional.ofNullable(request.getHeader("Authorization")) // Authorization 헤더의 값을 Optional로 감싼다.
+                .filter(header -> header.startsWith("Bearer ")) // 값이 "Bearer "로 시작하는지 확인
                 .map(header -> header.substring(7)); // "Bearer " 길이만큼 잘라서 리턴
     }
 
@@ -74,6 +74,10 @@ public class JwtTokenProvider {
         if (cookies == null) return Optional.empty();
 
         //쿠키에서 토큰 찾아서 유효성 검증 후 리턴
+        return getRefreshTokenFromCookie(cookies);
+    }
+
+    private Optional<String> getRefreshTokenFromCookie(Cookie[] cookies){
         for (Cookie cookie : cookies) {
             if ("refresh_token".equals(cookie.getName())) {
                 String refreshToken = cookie.getValue();

@@ -27,11 +27,11 @@ public class FollowService {
         User follow = userRepository.findById(followId)
                 .orElseThrow(() -> new IllegalArgumentException("팔로우 대상 유저 없음"));
 
-        Optional<Follow> existingFollow = followRepository.findByUserIdAndFollowId(userId, followId);
+        Optional<Follow> checkedFollow = followRepository.findByUserIdAndFollowId(userId, followId);
 
-        if (existingFollow.isPresent()) {
+        if (checkedFollow.isPresent()) {
             // 팔로우 상태면 언팔로우
-            followRepository.delete(existingFollow.get());
+            followRepository.delete(checkedFollow.get());
         } else {
             // 팔로우 안되어 있으면 팔로우 추가
             followRepository.save(new Follow(user, follow));

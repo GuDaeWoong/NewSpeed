@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -45,15 +47,21 @@ public class AuthService {
 
 
         //DB 에 저장된 토큰과 일치하는지 확인
-        Token tokenEntity = tokenRepository.findByRefreshToken(refreshToken)
-                .orElse(null);
-        if (tokenEntity == null) {
+        Optional<Token> tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
+        if (tokenEntity.isEmpty()) {
             return null;
         }
 
-        // 3. refresh token 에서 userId 추출 → 새로운 access token 발급
+        //refresh token 에서 userId 추출 → 새로운 access token 발급
         Long userId = jwtTokenProvider.getUserIdByToken(refreshToken);
 
+        //발급 받은 토큰 리턴
         return jwtTokenProvider.createAccessToken(userId);
+    }
+
+    //리프레쉬 토큰 삭제
+    public void deleteRefreshToken(String refreshToken) {
+        Optional<Token> findToken = tokenRepository.findByRefreshToken(refreshToken);
+        findToken.ifPresent(tokenRepository::delete);
     }
 }
