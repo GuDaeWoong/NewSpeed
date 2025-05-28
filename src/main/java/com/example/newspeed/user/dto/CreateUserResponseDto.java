@@ -10,6 +10,7 @@ public class CreateUserResponseDto {
     private Long id;
     private String nickname;
     private String email;
+    private String userUrl;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -19,6 +20,7 @@ public class CreateUserResponseDto {
         response.id = user.getId();
         response.nickname = user.getNickname();
         response.email = user.getEmail();
+        response.userUrl = user.getUserUrl();
         response.createdAt = user.getCreatedAt();
         response.modifiedAt = user.getModifiedAt();
 
