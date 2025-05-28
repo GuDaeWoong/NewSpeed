@@ -4,6 +4,7 @@ import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PostService {
@@ -14,6 +15,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional
     public PostResponseDto createPost(String title, String content, String imageUrl) {
 
         Post newPost = new Post(title, content, imageUrl);
