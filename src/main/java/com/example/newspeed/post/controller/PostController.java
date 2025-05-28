@@ -1,10 +1,9 @@
 package com.example.newspeed.post.controller;
 
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
+import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.service.PostService;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +30,9 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI() {
+    public ResponseEntity<List<FindPostResponseDto>> findAllAPI() {
 
-        List<FindAllPostResponseDto> allPost = postService.findAllPost();
+        List<FindPostResponseDto> allPost = postService.findAllPost();
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }

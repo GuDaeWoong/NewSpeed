@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class FindAllPostResponseDto {
+public class FindPostResponseDto {
 
     private final Long id;
     private final String nickname;
@@ -16,7 +16,7 @@ public class FindAllPostResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public FindAllPostResponseDto(Long id, String nickname, String title, String contents, String imageUrl, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public FindPostResponseDto(Long id, String nickname, String title, String contents, String imageUrl, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.nickname = nickname;
         this.title = title;
@@ -26,8 +26,8 @@ public class FindAllPostResponseDto {
         this.modifiedAt = modifiedAt;
     }
 
-    public static FindAllPostResponseDto toPostDto(Post post) {
-        return new FindAllPostResponseDto(
+    public static FindPostResponseDto toPostDto(Post post) {
+        return new FindPostResponseDto(
                 post.getId(),
                 "닉네임",  //post.getUser().getNickname(),
                 post.getTitle(),

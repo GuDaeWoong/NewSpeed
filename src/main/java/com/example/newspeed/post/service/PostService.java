@@ -1,6 +1,6 @@
 package com.example.newspeed.post.service;
 
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
+import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
@@ -40,8 +40,8 @@ public class PostService {
     }
 
     @Transactional
-    public List<FindAllPostResponseDto> findAllPost() {
+    public List<FindPostResponseDto> findAllPost() {
 
-        return postRepository.findAll().stream().map(FindAllPostResponseDto::toPostDto).toList();
+        return postRepository.findAll().stream().map(FindPostResponseDto::toPostDto).toList();
     }
 }
