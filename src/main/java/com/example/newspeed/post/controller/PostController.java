@@ -2,6 +2,7 @@ package com.example.newspeed.post.controller;
 
 
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.post.dto.DeletePostRequestDto;
 import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
@@ -62,4 +63,11 @@ public class PostController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
+
+        postService.deletePost(id, dto.getPassword());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
