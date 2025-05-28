@@ -1,6 +1,8 @@
 package com.example.newspeed.post.controller;
 
 
+import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.post.dto.FindPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.service.PostService;
@@ -17,16 +19,20 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, JwtTokenProvider jwtTokenProvider) {
         this.postService = postService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
 
     @PostMapping
     public ResponseEntity<PostResponseDto> createPostAPI(@RequestBody PostRequestDto dto) {
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
-        PostResponseDto responseDto = postService.createPost(dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        PostResponseDto responseDto = postService.createPost(dto.getTitle(), dto.getContents(), dto.getImageUrl(),currentUserId);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }

@@ -1,5 +1,6 @@
 package com.example.newspeed.post.entity;
 
+import com.example.newspeed.post.dto.PostTitleOfUserDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -31,10 +32,17 @@ public class Post extends BaseEntity {
     public Post() {
     }
 
-    public Post(String title, String contents, String imageUrl) {
+    public Post(User user, String title, String contents, String imageUrl) {
+        this.user = user;
         this.title = title;
         this.contents = contents;
         this.imageUrl = imageUrl;
+    }
+
+    // Post 객체를 PostTitleOfUserDto 로 변환
+    // Post > title 을 전달하는 용도로 가공하는 메서드
+    public PostTitleOfUserDto toDto() {
+        return new PostTitleOfUserDto(this.title);
     }
 
 }

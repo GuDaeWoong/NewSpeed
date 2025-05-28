@@ -1,5 +1,6 @@
 package com.example.newspeed.global.common;
 
+import com.example.newspeed.user.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,29 +18,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenRepository tokenRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider);
+        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository);
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable()) //보호 기능 삭제
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용하지 않음
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/login", "/users/signup").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/users/login", "/api/users/signup").permitAll() //특정 경로는 접근 허용
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
-                // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
+                // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 보다 먼저 실행되도록 등록
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+        return http.build(); //필터 객체 반환
     }
 
     // 로그인 등 인증 처리 시 필요한 AuthenticationManager 빈 등록
