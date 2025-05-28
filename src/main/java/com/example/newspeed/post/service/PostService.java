@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -63,5 +64,12 @@ public class PostService {
         );
 
         return responseDto;
+    }
+
+    // postId를 입력받아 Post객체로 반환
+    @Transactional
+    public Post findPostById(Long id) {
+        Optional<Post> findById = postRepository.findById(id);
+        return findById.get();
     }
 }
