@@ -98,4 +98,16 @@ public class UserService {
         findUser.updatePassword(encodePassword);
         userRepository.save(findUser);
     }
+
+    // 유저 삭제
+    @Transactional
+    public void deleteUser(Long userId, String password) {
+
+        User findUser = userRepository.findByIdOrElseThrow(userId);
+
+        // 요청 받은 currentPassword와 현재 DB의 비밀번호가 일치하는지 확인
+        passwordManager.validatePasswordMatchOrThrow(password, findUser.getPassword());
+
+        userRepository.deleteById(userId);
+    }
 }

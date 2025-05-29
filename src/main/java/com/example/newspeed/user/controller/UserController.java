@@ -108,4 +108,14 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        userService.deleteUser(currentUserId, requestDto.getPassword());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
