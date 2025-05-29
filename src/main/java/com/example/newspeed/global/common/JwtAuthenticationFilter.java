@@ -16,7 +16,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-    private final TokenRepository tokenRepository;
     private final WhiteListManager whiteListManager;
     private final FilterException filterException;
 
@@ -25,10 +24,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //토큰 얻기
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
-        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
 
         //로그인 상태 확인
-        boolean isLoggedIn = refreshToken != null;
+        boolean isLoggedIn = jwtTokenProvider.isLoggedIn(accessToken);
 
         //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
         whiteListManager.validateWhitelistAccess(isLoggedIn, request, response);
@@ -40,45 +38,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        //토큰 유효성 검증 (Access token)
-        if(accessToken != null && jwtTokenProvider.validateToken(accessToken)){
-            // 토큰으로부터 유저 정보 받기
-            Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
-            // SecurityContext 에 Authentication 객체를 저장
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
+        validateTokenOrThrow(accessToken,response);
 
-        }
-        //토큰 유효성 재검증 (refreshToken) -> 인증 성공 시 access 토큰 새로 발급
-        else if(jwtTokenProvider.validateToken(refreshToken)){
-                Token dbToken = tokenRepository.findByRefreshToken(refreshToken).orElse(null);
-                if(dbToken != null){
-
-                    //refresh token 에서 userId 추출
-                    Long userId = jwtTokenProvider.getUserIdByToken(refreshToken);
-
-                    //새로운 access token 발급
-                    String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-
-                    //토큰으로부터 Authentication 생성
-                    Authentication authentication = jwtTokenProvider.getAuthentication(newAccessToken);
-                    
-                    // SecurityContext 에 Authentication 객체를 저장
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    //새로운 토큰 헤더에 포함
-                    response.setHeader("Authorization", "Bearer " + newAccessToken);
-                }else{
-                    SecurityContextHolder.clearContext();
-                    //refresh 토큰이 db 에 없음 -> 보안상 위험. 토큰 삭제
-                    jwtTokenProvider.deleteRefreshToken(response);
-                    //body 로 재로그인 요청 및 에러처리
-                }
-        }else{
-            SecurityContextHolder.clearContext();
-            //refresh 토큰이 db 에 없음 -> 보안상 위험. 토큰 삭제
-            jwtTokenProvider.deleteRefreshToken(response);
-            //body 로 재로그인 요청 및 에러처리
-        }
+        // 다음 필터로 넘김
         filterChain.doFilter(request,response);
+
+    }
+    
+
+    //토큰 유효성 검증 Or 예외 처리 (Access token)
+    private void validateTokenOrThrow(String accessToken, HttpServletResponse response) throws IOException{
+        if(jwtTokenProvider.validateToken(accessToken)){
+           //인증 정보 저장
+            setAuthenticationFromToken(accessToken);
+        }else {
+            // 토큰 재발급 필요
+            filterException.writeExceptionResponse(response);
+        }
+    }
+
+    //토큰에서 인증 정보 설정
+    private void setAuthenticationFromToken(String accessToken){
+        // 토큰으로부터 유저 정보 받기
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        // SecurityContext 에 Authentication 객체를 저장
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

@@ -18,6 +18,7 @@ public class WhiteListManager {
     private static final String[] PUBLIC_URIS = {
             "/api/users/signup",
             "/api/users/login",
+            "/api/users/reissue",
             "/api/posts"
     };
 
