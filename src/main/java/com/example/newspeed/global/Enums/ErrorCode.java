@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ErrorMessege {
+public enum ErrorCode {
     //에러코드와 에러메세지 관리
 
     // 사용자 관련

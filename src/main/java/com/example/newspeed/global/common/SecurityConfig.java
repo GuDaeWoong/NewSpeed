@@ -1,6 +1,5 @@
 package com.example.newspeed.global.common;
 
-import com.example.newspeed.user.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final TokenRepository tokenRepository;
     private final WhiteListManager whiteListManager;
     private final FilterException filterException;
 
@@ -29,7 +27,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository,whiteListManager,filterException);
+        return new JwtAuthenticationFilter(jwtTokenProvider,whiteListManager,filterException);
     }
 
     @Bean

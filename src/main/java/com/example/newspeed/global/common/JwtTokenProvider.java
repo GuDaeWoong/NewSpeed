@@ -1,6 +1,7 @@
 package com.example.newspeed.global.common;
 
-import com.example.newspeed.user.dto.TokenResponse;
+import com.example.newspeed.user.repository.TokenBlackListRepository;
+import com.example.newspeed.user.service.AuthService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -26,6 +27,12 @@ public class JwtTokenProvider {
 
     //토큰 유지 시간 (1시간)
     private final long tokenValidityInMilliseconds = 1000 * 60 * 60;
+
+    //토큰 블랙리스트
+    private final TokenBlackListRepository tokenBlackListRepository;
+    public JwtTokenProvider(TokenBlackListRepository tokenBlackListRepository) {
+        this.tokenBlackListRepository = tokenBlackListRepository;
+    }
 
     @PostConstruct
     protected void init() {
@@ -56,19 +63,19 @@ public class JwtTokenProvider {
                 .setClaims(claims) // claims set
                 .setIssuedAt(now) // 토큰 생성 시각
                 .setExpiration(validity) // 만료시각
-                .signWith(key, SignatureAlgorithm.HS256) //비밀 키로 서명(HS512 알고리즘 사용)
+                .signWith(key, SignatureAlgorithm.HS256) //비밀 키로 서명(HS256 알고리즘 사용)
                 .compact(); // JWT 문자열로 압축(최종 토큰 생성)
     }
 
 
-    // Request의 Header에서 accesstoken 값을 가져온다.
+    // Header 에서 access token 값을 가져온다.
     public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader("Authorization")) // Authorization 헤더의 값을 Optional로 감싼다.
                 .filter(header -> header.startsWith("Bearer ")) // 값이 "Bearer "로 시작하는지 확인
                 .map(header -> header.substring(7)); // "Bearer " 길이만큼 잘라서 리턴
     }
 
-    // Request의 Cookie에서 refreshtoken 값을 가져온다.
+    // Cookie 에서 refresh token 값을 가져온다.
     public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
@@ -139,8 +146,8 @@ public class JwtTokenProvider {
 
 
     //refresh token 쿠키 저장
-    public void setRefreshTokenToCookie(TokenResponse token, HttpServletResponse response){
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", token.getRefreshToken())
+    public void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response){
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -150,12 +157,33 @@ public class JwtTokenProvider {
 
         response.setHeader("Set-Cookie", cookie.toString());
     }
+
+    //access token 헤더 저장
+    public void addAccessTokenToHeader(String accessToken, HttpServletResponse response) {
+        response.setHeader("Authorization", "Bearer " + accessToken);
+    }
+
     //클라이언트 쿠키에서 삭제 (MaxAge = 0)
-    public void deleteRefreshToken(HttpServletResponse response) {
+    public void deleteRefreshTokenCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("refresh_token", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+
+    //로그인 상태 확인
+    public boolean isLoggedIn(String accessToken) {
+        // null 값 확인
+        if(accessToken == null) return false;
+
+        // 블랙 리스트 확인
+        return !isTokenInBlackList(accessToken);
+    }
+
+    //토큰 블랙리스트인지 확인
+    private boolean isTokenInBlackList(String accessToken){
+        return tokenBlackListRepository.existsByAccessToken(accessToken);
+    }
+
 }
