@@ -2,15 +2,17 @@ package com.example.newspeed.post.dto;
 
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 public class SearchPeriodRequestDto {
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    // yyyy-mm-dd 형식
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    public SearchPeriodRequestDto(LocalDateTime startDate, LocalDateTime endDate) {
+    public SearchPeriodRequestDto(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }
