@@ -7,6 +7,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 // 이 클래스가 전역 예외 처리자임을 나타냅니다.
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -14,17 +19,20 @@ public class GlobalExceptionHandler {
     // valid에서 잡은 검증 오류 시 예외 처리
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        StringBuilder errorMessage = new StringBuilder();
+        List<Map<String, String>> errorList = new ArrayList<>();
 
         for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            errorMessage.append("[")
-                    .append(fieldError.getField())
-                    .append(" : ")
-                    .append(fieldError.getDefaultMessage())
-                    .append("]\n");
+            Map<String, String> error = new HashMap<>();
+            error.put("field", fieldError.getField());
+            error.put("message", fieldError.getDefaultMessage());
+            errorList.add(error);
         }
 
-        return new ResponseEntity<>(errorMessage.toString(), HttpStatus.BAD_REQUEST);
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", "올바르지 않은 요청입니다. 값을 비워두거나 유효한 형식인지 확인해주세요.");
+        responseBody.put("errors", errorList);
+
+        return new ResponseEntity<>(responseBody.toString(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
