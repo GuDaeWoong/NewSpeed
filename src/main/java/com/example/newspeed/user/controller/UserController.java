@@ -92,10 +92,18 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * 전체 유저 조회
+     *
+     * @param page 페이지
+     * @param size 페이지 사이즈
+     * @return 조회된 유저 리스트
+     */
     @GetMapping
-    public ResponseEntity<List<FindUserResponseDto>> findAllUsers() {
+    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
 
-        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsers();
+        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(page, size);
 
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }

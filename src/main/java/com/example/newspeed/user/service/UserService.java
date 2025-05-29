@@ -9,6 +9,9 @@ import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,12 +51,14 @@ public class UserService {
         return user.get();
     }
 
-    public List<FindUserResponseDto> findAllUsers() {
-        final List<User> allUsers = userRepository.findAll();
+    public List<FindUserResponseDto> findAllUsersPaged(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage = userRepository.findAll(pageable);
 
         List<FindUserResponseDto> responseDtos = new ArrayList<>();
 
-        for (User user : allUsers) {
+        for (User user : userPage) {
             long followCount = followService.getFollowCount(user.getId());
             responseDtos.add(FindUserResponseDto.toDto(user, followCount));
         }
