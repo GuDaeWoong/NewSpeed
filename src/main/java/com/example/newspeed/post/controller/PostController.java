@@ -55,7 +55,9 @@ public class PostController {
     @PatchMapping("/{id}")
     public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
-        UpdatePostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        UpdatePostResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -63,7 +65,9 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
 
-        postService.deletePost(id, dto.getPassword());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        postService.deletePost(id, currentUserId, dto.getPassword());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
