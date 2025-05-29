@@ -61,7 +61,8 @@ public class UserService {
 
         for (User user : userPage) {
             long followCount = followService.getFollowCount(user.getId());
-            responseDtos.add(FindUserResponseDto.toDto(user, followCount));
+            long followedCount = followService.getFollowedCount(user.getId());
+            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount));
         }
 
         return responseDtos;
