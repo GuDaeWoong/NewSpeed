@@ -3,7 +3,7 @@ package com.example.newspeed.post.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.post.dto.DeletePostRequestDto;
-import com.example.newspeed.post.dto.FindPostResponseDto;
+import com.example.newspeed.post.dto.FindAllPostResponseDto;
 import com.example.newspeed.post.dto.PostRequestDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.service.PostService;
@@ -33,32 +33,32 @@ public class PostController {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
-        PostResponseDto responseDto = postService.createPost(dto.getTitle(), dto.getContents(), dto.getImageUrl(),currentUserId);
+        PostResponseDto responseDto = postService.createPost(currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<FindPostResponseDto>> findAllAPI() {
+    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI() {
 
-        List<FindPostResponseDto> allPost = postService.findAllPost();
+        List<FindAllPostResponseDto> allPost = postService.findAllPost();
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }
 
     // 게시글 단건 조회 API
     @GetMapping("/{id}")
-    public ResponseEntity<FindPostResponseDto> findOneAPI(@PathVariable Long id) {
+    public ResponseEntity<FindAllPostResponseDto> findOneAPI(@PathVariable Long id) {
 
-        FindPostResponseDto findOnePost = postService.findOnePost(id);
+        FindAllPostResponseDto findOnePost = postService.findOnePost(id);
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<FindPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<FindAllPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
-        FindPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        FindAllPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }

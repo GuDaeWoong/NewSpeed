@@ -25,6 +25,9 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl;
 
+    @Column(nullable = false)
+    private String userUrl;
+
     @Setter
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -38,6 +41,7 @@ public class Post extends BaseEntity {
         this.title = title;
         this.contents = contents;
         this.imageUrl = imageUrl;
+        this.userUrl = user.getUserUrl();
     }
 
     // Post 객체를 PostTitleOfUserDto 로 변환
