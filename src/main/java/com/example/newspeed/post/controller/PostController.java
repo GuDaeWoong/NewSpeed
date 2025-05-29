@@ -2,10 +2,7 @@ package com.example.newspeed.post.controller;
 
 
 import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.post.dto.DeletePostRequestDto;
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
-import com.example.newspeed.post.dto.PostRequestDto;
-import com.example.newspeed.post.dto.PostResponseDto;
+import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,17 +45,19 @@ public class PostController {
 
     // 게시글 단건 조회 API
     @GetMapping("/{id}")
-    public ResponseEntity<FindAllPostResponseDto> findOneAPI(@PathVariable Long id) {
+    public ResponseEntity<FindOnePostResponseDto> findOneAPI(@PathVariable Long id) {
 
-        FindAllPostResponseDto findOnePost = postService.findOnePost(id);
+        FindOnePostResponseDto findOnePost = postService.findOnePost(id);
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<FindAllPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
-        FindAllPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        UpdatePostResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -66,7 +65,9 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
 
-        postService.deletePost(id, dto.getPassword());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        postService.deletePost(id, currentUserId, dto.getPassword());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
