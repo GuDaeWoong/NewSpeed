@@ -35,7 +35,7 @@ public class PostController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/pages")
+    @GetMapping
     public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI(
             @RequestParam (defaultValue = "1") int page,
             @RequestParam (defaultValue = "10") int size
