@@ -1,12 +1,9 @@
 package com.example.newspeed.user.dto;
 
-import com.example.newspeed.post.dto.PostTitleOfUserDto;
-import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.user.entity.User;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 public class FindUserResponseDto {
@@ -17,7 +14,7 @@ public class FindUserResponseDto {
 
     private final String nickname;
 
-    private String userUrl;
+    private final String userUrl;
 
     // 팔로우 수
     private final Long followCount;
