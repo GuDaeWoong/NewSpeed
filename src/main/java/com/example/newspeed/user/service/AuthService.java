@@ -5,8 +5,10 @@ import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.LoginRequestDto;
 import com.example.newspeed.user.dto.TokenResponse;
 import com.example.newspeed.user.entity.Token;
+import com.example.newspeed.user.entity.TokenBlackList;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.LoginRepository;
+import com.example.newspeed.user.repository.TokenBlackListRepository;
 import com.example.newspeed.user.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class AuthService {
     private final PasswordManager passwordManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
+    private final TokenBlackListRepository tokenBlackListRepository;
 
     public TokenResponse login(LoginRequestDto requestDto) {
 
@@ -59,9 +62,17 @@ public class AuthService {
         return jwtTokenProvider.createAccessToken(userId);
     }
 
-    //리프레쉬 토큰 삭제
-    public void deleteRefreshToken(String refreshToken) {
+    //Refresh 토큰 삭제
+    public void deleteRefreshTokenDB(String refreshToken) {
+        if(refreshToken == null) return;
+
         Optional<Token> findToken = tokenRepository.findByRefreshToken(refreshToken);
         findToken.ifPresent(tokenRepository::delete);
+    }
+
+    //Access 토큰 블랙리스트 등록
+    public void addAccessTokenToBlackList(String accessToken) {
+        if(accessToken == null) return;
+        tokenBlackListRepository.save(new TokenBlackList(accessToken));
     }
 }

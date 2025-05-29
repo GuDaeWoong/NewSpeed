@@ -13,7 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,36 +26,46 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto requestDto,
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequestDto requestDto,
                                       HttpServletResponse response){
 
         //비밀번호 확인 후 토큰 변환 후 반환
         TokenResponse token = authService.login(requestDto);
-        log.info("로그 테스트");
-        // 토큰을 응답 헤더에 추가
-        jwtTokenProvider.setRefreshTokenToCookie(token, response);
 
-        return new ResponseEntity<>("Access Token : " + token.getAccessToken(), HttpStatus.OK);
+        // refresh 토큰을 쿠키에 추가
+        jwtTokenProvider.addRefreshTokenToCookie(token.getRefreshToken(), response);
+
+        // access 토큰을 헤더에 추가 -> 포스트맨 사용시 수동으로 넣어주어야 해서 밑의 구문 사용
+        //jwtTokenProvider.addAccessTokenToHeader(token.getAccessToken(), response);
+
+        //postman 에서 사용. 헤더에 자동으로 넣어준다.
+        Map<String, String> result = new HashMap<>();
+        result.put("access_token", token.getAccessToken());
+
+        return ResponseEntity.ok(result);  // 200 OK + JSON body
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request,
                                        HttpServletResponse response){
 
+        //Header 에서 accessToken 가져오기
+        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
+
         //Cookie 에서 refreshToken 가져오기
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
+        
+        //accessToken 블랙리스트 추가
+        authService.addAccessTokenToBlackList(accessToken);
 
-        //토큰 있을 시
-        if(refreshToken != null) {
-            //DB 에서 refreshToken 삭제
-            authService.deleteRefreshToken(refreshToken);
+        //DB 에서 refreshToken 삭제
+        authService.deleteRefreshTokenDB(refreshToken);
 
-            jwtTokenProvider.deleteRefreshToken(response);
+        //쿠키에서 refreshToken 리셋
+        jwtTokenProvider.deleteRefreshTokenCookie(response);
 
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
 
