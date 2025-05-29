@@ -70,13 +70,13 @@ public class UserController {
      * @return -
      */
     @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@RequestBody UpdatePasswordRequestDto requestDto) {
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
         userService.updatePassword(currentUserId,
-                                   requestDto.getOldPassword(),
+                                   requestDto.getCurrentPassword(),
                                    requestDto.getNewPassword());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
