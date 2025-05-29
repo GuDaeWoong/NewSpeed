@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,6 +31,9 @@ public class Comment extends BaseEntity {
 
     @NotNull
     private String contents;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE)
+    private List<CommentLikes> commentLikes = new ArrayList<>();
 
     public Comment(User user, Post post, String contents) {
         this.user = user;
