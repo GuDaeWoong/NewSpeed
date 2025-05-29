@@ -1,7 +1,5 @@
 package com.example.newspeed.global.common;
 
-import com.example.newspeed.user.entity.Token;
-import com.example.newspeed.user.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +20,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        //토큰 얻기
+        //헤더에서 토큰 생성
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
 
         //로그인 상태 확인
@@ -31,15 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
         whiteListManager.validateWhitelistAccess(isLoggedIn, request, response);
 
-        //refresh token 이 null 일 경우 바로 다음 필터 진입
+        //refresh token 이 null 일 경우 Security 초기화
         if(!isLoggedIn) {
             SecurityContextHolder.clearContext();
-            filterChain.doFilter(request,response);
-            return;
         }
-
-        //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
-        validateTokenOrThrow(accessToken,response);
+        //재발급 요청일 경우 유효성 검증 안함
+        else if(!whiteListManager.isReissueUri(request)){
+            //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
+            validateTokenOrThrow(accessToken,response);
+        }
 
         // 다음 필터로 넘김
         filterChain.doFilter(request,response);
@@ -48,11 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
 
     //토큰 유효성 검증 Or 예외 처리 (Access token)
-    private void validateTokenOrThrow(String accessToken, HttpServletResponse response) throws IOException{
+    private void validateTokenOrThrow(String accessToken,HttpServletResponse response) throws IOException{
         if(jwtTokenProvider.validateToken(accessToken)){
            //인증 정보 저장
             setAuthenticationFromToken(accessToken);
-        }else {
+        }else{
             // 토큰 재발급 필요
             filterException.writeExceptionResponse(response);
         }

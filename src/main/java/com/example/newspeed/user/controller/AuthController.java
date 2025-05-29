@@ -84,12 +84,15 @@ public class AuthController {
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<String> reissue(HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> reissue(HttpServletRequest request) {
 
         String newAccessToken = authService.reissueAccessToken(request);
 
-        return new ResponseEntity<>("Access Token : " + newAccessToken, HttpStatus.OK);
-    }
+        //postman 에서 사용. 헤더에 자동으로 넣어준다.
+        Map<String, String> result = new HashMap<>();
+        result.put("access_token", newAccessToken);
 
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
 }

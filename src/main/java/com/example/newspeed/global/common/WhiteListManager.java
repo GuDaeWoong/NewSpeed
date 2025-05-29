@@ -51,6 +51,12 @@ public class WhiteListManager {
             }
         }
     }
+    
+    //재발급 uri 판단
+    public boolean isReissueUri(HttpServletRequest request) {
+        String uri = request.getRequestURI(); // 전체 URI 경로 얻기
+        return "/api/users/reissue".equals(uri);
+    }
 
     //화이트 리스트 인지 확인
     private boolean isWhitelistedUri(String[] URLS_LIST, String requestURI) {

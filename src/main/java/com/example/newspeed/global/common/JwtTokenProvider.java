@@ -7,7 +7,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,7 +41,7 @@ public class JwtTokenProvider {
 
     //Access Token : 로그인 후 API 호출에 사용
     public String createAccessToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds /4);
+        return createToken(userId, tokenValidityInMilliseconds /600);
     }
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
@@ -68,14 +67,14 @@ public class JwtTokenProvider {
     }
 
 
-    // Request의 Header에서 accesstoken 값을 가져온다.
+    // Header 에서 access token 값을 가져온다.
     public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader("Authorization")) // Authorization 헤더의 값을 Optional로 감싼다.
                 .filter(header -> header.startsWith("Bearer ")) // 값이 "Bearer "로 시작하는지 확인
                 .map(header -> header.substring(7)); // "Bearer " 길이만큼 잘라서 리턴
     }
 
-    // Request의 Cookie에서 refreshtoken 값을 가져온다.
+    // Cookie 에서 refresh token 값을 가져온다.
     public Optional<String> extractRefreshTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
@@ -181,6 +180,7 @@ public class JwtTokenProvider {
         return !isTokenInBlackList(accessToken);
     }
 
+    //토큰 블랙리스트인지 확인
     private boolean isTokenInBlackList(String accessToken){
         return tokenBlackListRepository.existsByAccessToken(accessToken);
     }
