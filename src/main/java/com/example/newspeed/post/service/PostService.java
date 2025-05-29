@@ -1,7 +1,7 @@
 package com.example.newspeed.post.service;
 
 import com.example.newspeed.global.common.SecurityConfig;
-import com.example.newspeed.post.dto.FindPostResponseDto;
+import com.example.newspeed.post.dto.FindAllPostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
@@ -53,20 +53,20 @@ public class PostService {
     }
 
     @Transactional
-    public List<FindPostResponseDto> findAllPost() {
+    public List<FindAllPostResponseDto> findAllPost() {
 
-        return postRepository.findAll().stream().map(FindPostResponseDto::toPostDto).toList();
+        return postRepository.findAll().stream().map(FindAllPostResponseDto::toPostDto).toList();
     }
 
 
     // 게시글 단건 조회 기능
     @Transactional
-    public FindPostResponseDto findOnePost(Long id) {
+    public FindAllPostResponseDto findOnePost(Long id) {
 
         // 레포지토리에서 생성한 기능을 사용
         Post post = postRepository.findByIdOrElseThrow(id);
 
-        FindPostResponseDto responseDto = new FindPostResponseDto(
+        FindAllPostResponseDto responseDto = new FindAllPostResponseDto(
                 id,
                 post.getUser().getNickname(),
                 post.getTitle(),
@@ -88,7 +88,7 @@ public class PostService {
 
     // Post 게시글 수정 기능
     @Transactional
-    public FindPostResponseDto updatedPost(Long id, String title, String contents, String imageUrl) {
+    public FindAllPostResponseDto updatedPost(Long id, String title, String contents, String imageUrl) {
 
         Optional<Post> findById = postRepository.findById(id);
         Post post = findById.get();
@@ -105,7 +105,7 @@ public class PostService {
             post.setImageUrl(imageUrl);
         }
 
-        FindPostResponseDto responseDto = new FindPostResponseDto(
+        FindAllPostResponseDto responseDto = new FindAllPostResponseDto(
                 post.getId(),
                 post.getUser().getNickname(),
                 post.getTitle(),
