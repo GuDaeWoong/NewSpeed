@@ -6,11 +6,14 @@ import com.example.newspeed.user.dto.TokenResponse;
 import com.example.newspeed.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -22,11 +25,9 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto requestDto,
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto requestDto,
                                       HttpServletResponse response){
 
-
-        
         //비밀번호 확인 후 토큰 변환 후 반환
         TokenResponse token = authService.login(requestDto);
         log.info("로그 테스트");
@@ -50,8 +51,11 @@ public class AuthController {
 
             jwtTokenProvider.deleteRefreshToken(response);
 
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
     @PostMapping("/tokentest")

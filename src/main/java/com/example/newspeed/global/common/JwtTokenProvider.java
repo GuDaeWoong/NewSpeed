@@ -35,7 +35,7 @@ public class JwtTokenProvider {
 
     //Access Token : 로그인 후 API 호출에 사용
     public String createAccessToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds / 4);
+        return createToken(userId, tokenValidityInMilliseconds);
     }
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
@@ -77,6 +77,7 @@ public class JwtTokenProvider {
         return getRefreshTokenFromCookie(cookies);
     }
 
+    //쿠키에서 refresh_token 이름으로 토큰 받기
     private Optional<String> getRefreshTokenFromCookie(Cookie[] cookies){
         for (Cookie cookie : cookies) {
             if ("refresh_token".equals(cookie.getName())) {
@@ -108,7 +109,8 @@ public class JwtTokenProvider {
         return Long.parseLong(claims.getSubject());
     }
 
-    //토큰 유효성 검증
+    //토큰 유효성 검증(key, 만료, 유효 시작, 형식)
+    //보안상 예외 처리는 최소화
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -122,9 +124,19 @@ public class JwtTokenProvider {
     }
 
     //Security 에서 userId 생성
-    public Long getUserIdFromSecurity(){
-        return (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public Long getUserIdFromSecurity() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return null;
+        }
+        try {
+            return (Long) authentication.getPrincipal();
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
+
 
     //refresh token 쿠키 저장
     public void setRefreshTokenToCookie(TokenResponse token, HttpServletResponse response){
@@ -138,9 +150,8 @@ public class JwtTokenProvider {
 
         response.setHeader("Set-Cookie", cookie.toString());
     }
-
+    //클라이언트 쿠키에서 삭제 (MaxAge = 0)
     public void deleteRefreshToken(HttpServletResponse response) {
-        //클라이언트 쿠키에서 삭제 (MaxAge = 0)
         Cookie cookie = new Cookie("refresh_token", null);
         cookie.setPath("/");
         cookie.setHttpOnly(true);

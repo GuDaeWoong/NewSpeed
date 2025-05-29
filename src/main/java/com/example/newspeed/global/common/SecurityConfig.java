@@ -19,6 +19,8 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
+    private final WhiteListManager whiteListManager;
+    private final FilterException filterException;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -27,7 +29,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository);
+        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository,whiteListManager,filterException);
     }
 
     @Bean
@@ -36,7 +38,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) //보호 기능 삭제
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 사용하지 않음
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/login", "/api/users/signup").permitAll() //특정 경로는 접근 허용
+                        .requestMatchers("/**").permitAll() //특정 경로는 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 보다 먼저 실행되도록 등록
