@@ -1,5 +1,6 @@
 package com.example.newspeed.global.common;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,10 +28,15 @@ public class WhiteListManager {
     };
 
     //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
-    public boolean validateWhitelistAccess(boolean isLoggedIn, String requestURI, String httpMethod, HttpServletResponse httpResponse) throws IOException {
+    public void validateWhitelistAccess(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
+        //입력받은 URI
+        String requestURI = request.getRequestURI();
+
+        //GET, POST 등 요청받은 메소드 방식
+        String httpMethod = request.getMethod();
+
         if (isLoggedIn && isWhitelistedUri(LOGOUT_ONLY_URIS, requestURI)) {
             filterException.writeExceptionResponse(httpResponse);
-            return false;
         }
 
         //Get 방식의 조회만 필터 제외하고, 다른 방식은(수정,삭제 등) 필터에 걸리도록 수정
@@ -38,14 +44,11 @@ public class WhiteListManager {
             if (requestURI.startsWith("/api/posts/")) {
                 if (!"GET".equalsIgnoreCase(httpMethod)) { //대소문자 구분없이 판단
                     filterException.writeExceptionResponse(httpResponse);
-                    return false;
                 }
             } else if (!isWhitelistedUri(PUBLIC_URIS, requestURI)) {
                 filterException.writeExceptionResponse(httpResponse);
-                return false;
             }
         }
-        return true;
     }
 
     //화이트 리스트 인지 확인

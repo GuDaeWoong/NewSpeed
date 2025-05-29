@@ -20,6 +20,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
     private final WhiteListManager whiteListManager;
+    private final FilterException filterException;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,7 +29,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository,whiteListManager);
+        return new JwtAuthenticationFilter(jwtTokenProvider, tokenRepository,whiteListManager,filterException);
     }
 
     @Bean

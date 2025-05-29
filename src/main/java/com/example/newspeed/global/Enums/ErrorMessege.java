@@ -1,4 +1,4 @@
-package com.example.newspeed.Enums;
+package com.example.newspeed.global.Enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

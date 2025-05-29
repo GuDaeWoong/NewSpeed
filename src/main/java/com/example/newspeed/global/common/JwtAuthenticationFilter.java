@@ -18,6 +18,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRepository tokenRepository;
     private final WhiteListManager whiteListManager;
+    private final FilterException filterException;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -26,26 +27,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
 
-        //입력받은 URI
-        String requestURI = request.getRequestURI();
+        //로그인 상태 확인
+        boolean isLoggedIn = refreshToken != null;
 
-        //GET, POST 등 요청받은 메소드 방식
-        String httpMethod = request.getMethod();
-
-        //로그인 상태인지 확인
-        boolean isLoggedIn = jwtTokenProvider.getUserIdFromSecurity() != null;
-
-        if(!whiteListManager.validateWhitelistAccess(isLoggedIn, requestURI, httpMethod, response)) return;
+        //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
+        whiteListManager.validateWhitelistAccess(isLoggedIn, request, response);
 
         //refresh token 이 null 일 경우 바로 다음 필터 진입
-        if(refreshToken == null) {
+        if(!isLoggedIn) {
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request,response);
             return;
         }
 
         //토큰 유효성 검증 (Access token)
-        if(jwtTokenProvider.validateToken(accessToken)){
-            // 토큰이 유효하면 토큰으로부터 유저 정보 받기
+        if(accessToken != null && jwtTokenProvider.validateToken(accessToken)){
+            // 토큰으로부터 유저 정보 받기
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
             // SecurityContext 에 Authentication 객체를 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -71,10 +68,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     //새로운 토큰 헤더에 포함
                     response.setHeader("Authorization", "Bearer " + newAccessToken);
                 }else{
+                    SecurityContextHolder.clearContext();
                     //refresh 토큰이 db 에 없음 -> 보안상 위험. 토큰 삭제
                     jwtTokenProvider.deleteRefreshToken(response);
+                    //body 로 재로그인 요청 및 에러처리
                 }
-
+        }else{
+            SecurityContextHolder.clearContext();
+            //refresh 토큰이 db 에 없음 -> 보안상 위험. 토큰 삭제
+            jwtTokenProvider.deleteRefreshToken(response);
+            //body 로 재로그인 요청 및 에러처리
         }
         filterChain.doFilter(request,response);
     }
