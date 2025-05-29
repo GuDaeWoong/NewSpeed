@@ -18,6 +18,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
+    private final FollowService followService;
 
     // 유저 생성 (회원가입)
     @Transactional
@@ -34,7 +35,9 @@ public class UserService {
     public FindUserResponseDto findByIdUser(Long userId) {
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
-        return FindUserResponseDto.toDto(findUser);
+        long followCount = followService.getFollowCount(userId);
+
+        return FindUserResponseDto.toDto(findUser, followCount);
     }
 
 
