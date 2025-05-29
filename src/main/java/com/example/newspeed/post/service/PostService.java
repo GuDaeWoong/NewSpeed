@@ -2,7 +2,9 @@ package com.example.newspeed.post.service;
 
 import com.example.newspeed.global.common.SecurityConfig;
 import com.example.newspeed.post.dto.FindAllPostResponseDto;
+import com.example.newspeed.post.dto.FindOnePostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
+import com.example.newspeed.post.dto.UpdatePostResponseDto;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
 import com.example.newspeed.user.entity.User;
@@ -63,17 +65,18 @@ public class PostService {
 
     // 게시글 단건 조회 기능
     @Transactional
-    public FindAllPostResponseDto findOnePost(Long id) {
+    public FindOnePostResponseDto findOnePost(Long id) {
 
         // 레포지토리에서 생성한 기능을 사용
         Post post = postRepository.findByIdOrElseThrow(id);
 
-        FindAllPostResponseDto responseDto = new FindAllPostResponseDto(
+        FindOnePostResponseDto responseDto = new FindOnePostResponseDto(
                 id,
                 post.getUser().getNickname(),
                 post.getTitle(),
                 post.getContents(),
                 post.getImageUrl(),
+                post.getUserUrl(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );
@@ -90,7 +93,7 @@ public class PostService {
 
     // Post 게시글 수정 기능
     @Transactional
-    public FindAllPostResponseDto updatedPost(Long id, String title, String contents, String imageUrl) {
+    public UpdatePostResponseDto updatedPost(Long id, String title, String contents, String imageUrl) {
 
         Optional<Post> findById = postRepository.findById(id);
         Post post = findById.get();
@@ -107,12 +110,13 @@ public class PostService {
             post.setImageUrl(imageUrl);
         }
 
-        FindAllPostResponseDto responseDto = new FindAllPostResponseDto(
+        UpdatePostResponseDto responseDto = new UpdatePostResponseDto(
                 post.getId(),
                 post.getUser().getNickname(),
                 post.getTitle(),
                 post.getContents(),
                 post.getImageUrl(),
+                post.getUserUrl(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );
