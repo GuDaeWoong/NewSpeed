@@ -21,7 +21,7 @@ public class CommentLikes extends BaseEntity {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
     public CommentLikes() {
