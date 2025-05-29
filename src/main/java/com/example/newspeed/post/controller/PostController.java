@@ -2,10 +2,7 @@ package com.example.newspeed.post.controller;
 
 
 import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.post.dto.DeletePostRequestDto;
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
-import com.example.newspeed.post.dto.PostRequestDto;
-import com.example.newspeed.post.dto.PostResponseDto;
+import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +51,14 @@ public class PostController {
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<FindAllPostResponseDto>> searchPostByPeriod(@RequestBody SearchPeriodRequestDto requestDto) {
+        List<FindAllPostResponseDto> searchPost = postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate());
+
+        return new ResponseEntity<>(searchPost, HttpStatus.OK);
+    }
+
 
     @PatchMapping("/{id}")
     public ResponseEntity<FindAllPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {

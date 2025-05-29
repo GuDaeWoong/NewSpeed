@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,6 +81,13 @@ public class PostService {
 
         return responseDto;
     }
+
+    public List<FindAllPostResponseDto> findPostsByPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Post> posts = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(startDate, endDate);
+
+        return posts.stream().map(FindAllPostResponseDto::toPostDto).toList();
+    }
+
 
     @Transactional
     public Post findPostById(Long id) {
