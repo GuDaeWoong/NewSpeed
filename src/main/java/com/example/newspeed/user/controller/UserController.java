@@ -2,16 +2,14 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.user.dto.*;
-import com.example.newspeed.user.dto.CreateUserRequestDto;
-import com.example.newspeed.user.dto.CreateUserResponseDto;
-import com.example.newspeed.user.dto.FindUserResponseDto;
-
 import com.example.newspeed.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -94,5 +92,30 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * 전체 유저 조회
+     *
+     * @param page 페이지
+     * @param size 페이지 사이즈
+     * @return 조회된 유저 리스트
+     */
+    @GetMapping
+    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
 
+        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(page, size);
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        userService.deleteUser(currentUserId, requestDto.getPassword());
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

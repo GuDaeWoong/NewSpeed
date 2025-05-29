@@ -35,19 +35,22 @@ public class PostController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI() {
-
-        List<FindAllPostResponseDto> allPost = postService.findAllPost();
+    @GetMapping("/pages")
+    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI(
+            @RequestParam (defaultValue = "1") int page,
+            @RequestParam (defaultValue = "10") int size
+    )
+    {
+        List<FindAllPostResponseDto> allPost = postService.findAllPost(page, size);
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }
 
     // 게시글 단건 조회 API
     @GetMapping("/{id}")
-    public ResponseEntity<FindAllPostResponseDto> findOneAPI(@PathVariable Long id) {
+    public ResponseEntity<FindOnePostResponseDto> findOneAPI(@PathVariable Long id) {
 
-        FindAllPostResponseDto findOnePost = postService.findOnePost(id);
+        FindOnePostResponseDto findOnePost = postService.findOnePost(id);
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
@@ -61,9 +64,11 @@ public class PostController {
 
 
     @PatchMapping("/{id}")
-    public ResponseEntity<FindAllPostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
-        FindAllPostResponseDto responseDto = postService.updatedPost(id, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        UpdatePostResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -71,7 +76,9 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
 
-        postService.deletePost(id, dto.getPassword());
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        postService.deletePost(id, currentUserId, dto.getPassword());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
