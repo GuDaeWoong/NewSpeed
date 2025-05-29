@@ -35,10 +35,13 @@ public class PostController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI() {
-
-        List<FindAllPostResponseDto> allPost = postService.findAllPost();
+    @GetMapping("/pages")
+    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI(
+            @RequestParam (defaultValue = "1") int page,
+            @RequestParam (defaultValue = "10") int size
+    )
+    {
+        List<FindAllPostResponseDto> allPost = postService.findAllPost(page, size);
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }
