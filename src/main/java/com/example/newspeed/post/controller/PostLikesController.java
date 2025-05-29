@@ -1,8 +1,8 @@
-package com.example.newspeed.user.controller;
+package com.example.newspeed.post.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.user.dto.followDto;
-import com.example.newspeed.user.service.FollowService;
+import com.example.newspeed.post.dto.PostLikesDto;
+import com.example.newspeed.post.service.PostLikesService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,25 +13,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
-
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 @Validated
-public class FollowController {
-    private final FollowService followService;
+public class PostLikesController {
+    private final PostLikesService postLikesService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping("/follow/{id}")
-    public ResponseEntity<Void> follow(@PathVariable @Min(1) Long id){
-
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Void> likes(@PathVariable @Min(1) Long id){
         Long userId = jwtTokenProvider.getUserIdFromSecurity();
 
-        //같은 유저는 팔로우 할 수 없음
-        if(Objects.equals(userId, id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        followService.follow(new followDto(userId, id));
+        postLikesService.likes(new PostLikesDto(userId, id));
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

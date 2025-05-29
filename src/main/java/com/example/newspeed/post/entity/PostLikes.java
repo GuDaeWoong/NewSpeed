@@ -8,8 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Entity
-@Table(name="likes")
-public class Likes extends BaseEntity {
+@Table(name="postLikes")
+public class PostLikes extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,10 +24,10 @@ public class Likes extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public Likes() {
+    public PostLikes() {
     }
 
-    public Likes(User user, Post post) {
+    public PostLikes(User user, Post post) {
         this.user = user;
         this.post = post;
     }

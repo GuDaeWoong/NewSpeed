@@ -1,8 +1,9 @@
-package com.example.newspeed.post.controller;
+package com.example.newspeed.comment.controller;
 
+import com.example.newspeed.comment.dto.CommentLikesDto;
+import com.example.newspeed.comment.service.CommentLikesService;
 import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.post.dto.LikesDto;
-import com.example.newspeed.post.service.LikesService;
+import com.example.newspeed.post.dto.PostLikesDto;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,18 +15,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/posts/{id}/likes")
+@RequestMapping("/api/comments")
 @RequiredArgsConstructor
 @Validated
-public class LikesController {
-    private final LikesService likesService;
+public class CommentLikesController {
+    private final CommentLikesService commentLikesService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/{id}/likes")
     public ResponseEntity<Void> likes(@PathVariable @Min(1) Long id){
         Long userId = jwtTokenProvider.getUserIdFromSecurity();
 
-        likesService.likes(new LikesDto(userId, id));
+        commentLikesService.likes(new CommentLikesDto(userId, id));
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
