@@ -1,7 +1,6 @@
 package com.example.newspeed.post.service;
 
 import com.example.newspeed.global.common.PasswordManager;
-import com.example.newspeed.global.common.SecurityConfig;
 import com.example.newspeed.post.dto.FindAllPostResponseDto;
 import com.example.newspeed.post.dto.FindOnePostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
@@ -13,25 +12,27 @@ import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 
 
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
-    private final SecurityConfig securityConfig;
     private final PasswordManager passwordManager;
 
-    public PostService(PostRepository postRepository, UserService userService, SecurityConfig securityConfig, PasswordManager passwordManager) {
+    public PostService(PostRepository postRepository, UserService userService, PasswordManager passwordManager) {
         this.postRepository = postRepository;
         this.userService = userService;
-        this.securityConfig = securityConfig;
         this.passwordManager = passwordManager;
     }
 
@@ -60,9 +61,20 @@ public class PostService {
     }
 
     @Transactional
-    public List<FindAllPostResponseDto> findAllPost() {
+    public List<FindAllPostResponseDto> findAllPost(int page, int size) {
 
-        return postRepository.findAll().stream().map(FindAllPostResponseDto::toPostDto).toList();
+        // 페이지 번호 1을 -> 0으로 변경하여 파라미터에 1입력 시 0번째 페이지 조회
+        page -= 1;
+
+        // 페이지 번호, 크기 지정 및 정렬 (생성 일자 기준으로 내림차순)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // 레포지토리에서 생성한 게시글 전체 조회 페이징 기능
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        // 리스트로 반환
+        return postPage.stream().map(FindAllPostResponseDto::toPostDto).toList();
+
     }
 
 
