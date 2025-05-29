@@ -37,9 +37,12 @@ public class CommentController {
 
     // post 선택 하여 모든 댓글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> findAllCommentByPostId(@PathVariable Long postId
+    public ResponseEntity<List<CommentResponseDto>> findAllCommentByPostId(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return new ResponseEntity<>(commentService.findAllCommentByPostId(postId), HttpStatus.OK);
+        return new ResponseEntity<>(commentService.findAllCommentByPostId(postId, page, size), HttpStatus.OK);
     }
 
     // 댓글 업데이트
