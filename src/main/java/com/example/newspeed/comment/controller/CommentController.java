@@ -3,8 +3,10 @@ package com.example.newspeed.comment.controller;
 
 import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
+import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -47,6 +49,16 @@ public class CommentController {
     ) {
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
         commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
+                                              @RequestBody DeleteCommentDto deleteDto
+    ) {
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        commentService.deleteComment(commentId, deleteDto, currentUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
