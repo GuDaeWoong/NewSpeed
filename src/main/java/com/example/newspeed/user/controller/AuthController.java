@@ -1,8 +1,9 @@
 package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.user.dto.AccessTokenResponseDto;
 import com.example.newspeed.user.dto.LoginRequestDto;
-import com.example.newspeed.user.dto.TokenResponse;
+import com.example.newspeed.user.dto.TokenResponseDto;
 import com.example.newspeed.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,46 +27,42 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequestDto requestDto,
-                                      HttpServletResponse response){
+    public ResponseEntity<AccessTokenResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto,
+                                                        HttpServletResponse response){
 
         //비밀번호 확인 후 토큰 변환 후 반환
-        TokenResponse token = authService.login(requestDto);
+        TokenResponseDto token = authService.login(requestDto);
 
         // refresh 토큰을 쿠키에 추가
         jwtTokenProvider.addRefreshTokenToCookie(token.getRefreshToken(), response);
 
-        // access 토큰을 헤더에 추가 -> 포스트맨 사용시 수동으로 넣어주어야 해서 밑의 구문 사용
-        //jwtTokenProvider.addAccessTokenToHeader(token.getAccessToken(), response);
+        return new ResponseEntity<>(new AccessTokenResponseDto(token.getAccessToken()),HttpStatus.OK);
 
-        //postman 에서 사용. 헤더에 자동으로 넣어준다.
-        Map<String, String> result = new HashMap<>();
-        result.put("access_token", token.getAccessToken());
-
-        return ResponseEntity.ok(result);  // 200 OK + JSON body
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request,
                                        HttpServletResponse response){
 
-        //DB 에서 refreshToken 삭제
-        authService.deleteRefreshTokenDB(request);
-
-        //쿠키에서 refreshToken 리셋
-        jwtTokenProvider.deleteRefreshTokenCookie(response);
-
-
-        //accessToken 블랙리스트 추가
-        if(!authService.addAccessTokenToBlackList(request)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(!authService.logout(request, response)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>(HttpStatus.OK);
-
-
     }
 
+    @PostMapping("/reissue")
+    public ResponseEntity<AccessTokenResponseDto> reissue(HttpServletRequest request) {
+
+        String newAccessToken = authService.reissueAccessToken(request);
+
+        return new ResponseEntity<>(new AccessTokenResponseDto(newAccessToken), HttpStatus.OK);
+    }
+
+
+
+
+    //토큰 유효기간 테스트용 코드 > 삭제예정
     @PostMapping("/tokentest")
-    public ResponseEntity<TokenResponse> loginTest(HttpServletRequest request){
+    public ResponseEntity<TokenResponseDto> loginTest(HttpServletRequest request){
 
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
         if(!jwtTokenProvider.validateToken(accessToken)) accessToken = "유효기간만료";
@@ -73,21 +70,10 @@ public class AuthController {
 
         Long id = jwtTokenProvider.getUserIdFromSecurity();
 
-        new TokenResponse(accessToken, refreshToken);
+        new TokenResponseDto(accessToken, refreshToken);
 
-        return new ResponseEntity<>(new TokenResponse(accessToken, refreshToken), HttpStatus.OK);
+        return new ResponseEntity<>(new TokenResponseDto(accessToken, refreshToken), HttpStatus.OK);
     }
 
-    @PostMapping("/reissue")
-    public ResponseEntity<Map<String, String>> reissue(HttpServletRequest request) {
-
-        String newAccessToken = authService.reissueAccessToken(request);
-
-        //postman 에서 사용. 헤더에 자동으로 넣어준다.
-        Map<String, String> result = new HashMap<>();
-        result.put("access_token", newAccessToken);
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
 
 }

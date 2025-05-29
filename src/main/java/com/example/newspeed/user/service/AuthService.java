@@ -3,7 +3,7 @@ package com.example.newspeed.user.service;
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.LoginRequestDto;
-import com.example.newspeed.user.dto.TokenResponse;
+import com.example.newspeed.user.dto.TokenResponseDto;
 import com.example.newspeed.user.entity.Token;
 import com.example.newspeed.user.entity.TokenBlackList;
 import com.example.newspeed.user.entity.User;
@@ -11,6 +11,7 @@ import com.example.newspeed.user.repository.LoginRepository;
 import com.example.newspeed.user.repository.TokenBlackListRepository;
 import com.example.newspeed.user.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final TokenBlackListRepository tokenBlackListRepository;
 
-    public TokenResponse login(LoginRequestDto requestDto) {
+    public TokenResponseDto login(LoginRequestDto requestDto) {
 
         User user = loginRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -39,7 +40,7 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
         tokenRepository.save(new Token(user, refreshToken));
-        return new TokenResponse(accessToken, refreshToken);
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 
     public String reissueAccessToken(HttpServletRequest request) {
@@ -64,26 +65,39 @@ public class AuthService {
         return jwtTokenProvider.createAccessToken(userId);
     }
 
-    //Refresh 토큰 삭제
-    public void deleteRefreshTokenDB(HttpServletRequest request) {
-        //Cookie 에서 refreshToken 가져오기
-        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
-
-        if(refreshToken == null) return;
-
+    //DB 에서 Refresh 토큰 삭제
+    private void deleteRefreshTokenDB(String refreshToken) {
         Optional<Token> findToken = tokenRepository.findByRefreshToken(refreshToken);
         findToken.ifPresent(tokenRepository::delete);
     }
 
     //Access 토큰 블랙리스트 등록
-    public boolean addAccessTokenToBlackList(HttpServletRequest request) {
-
-        //Header 에서 accessToken 가져오기
-        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
+    private boolean isAccessTokenBlackListOrSave(String accessToken) {
 
         if(accessToken == null || tokenBlackListRepository.existsByAccessToken(accessToken)) return false;
 
         tokenBlackListRepository.save(new TokenBlackList(accessToken));
         return true;
+    }
+
+    //로그아웃 기능
+    public boolean logout(HttpServletRequest request, HttpServletResponse response) {
+
+        //Header 에서 Token 가져오기
+        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
+        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
+
+        //토큰 있을 시 실행
+        if(refreshToken != null){
+
+            //DB 에서 refreshToken 삭제
+            deleteRefreshTokenDB(refreshToken);
+
+            //쿠키에서 refreshToken 리셋
+            jwtTokenProvider.deleteRefreshTokenCookie(response);
+        }
+
+        //accessToken 블랙리스트 추가 -> 이미 추가되어 있거나 null 일 경우 false 반환(비정상 접근)
+        return isAccessTokenBlackListOrSave(accessToken);
     }
 }
