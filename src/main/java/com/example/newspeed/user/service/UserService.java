@@ -11,6 +11,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,6 +46,19 @@ public class UserService {
     public User findUserById(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.get();
+    }
+
+    public List<FindUserResponseDto> findAllUsers() {
+        final List<User> allUsers = userRepository.findAll();
+
+        List<FindUserResponseDto> responseDtos = new ArrayList<>();
+
+        for (User user : allUsers) {
+            long followCount = followService.getFollowCount(user.getId());
+            responseDtos.add(FindUserResponseDto.toDto(user, followCount));
+        }
+
+        return responseDtos;
     }
 
     // 유저 프로필 수정

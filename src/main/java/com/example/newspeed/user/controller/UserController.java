@@ -2,16 +2,14 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.user.dto.*;
-import com.example.newspeed.user.dto.CreateUserRequestDto;
-import com.example.newspeed.user.dto.CreateUserResponseDto;
-import com.example.newspeed.user.dto.FindUserResponseDto;
-
 import com.example.newspeed.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -94,5 +92,12 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<List<FindUserResponseDto>> findAllUsers() {
+
+        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsers();
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
 
 }
