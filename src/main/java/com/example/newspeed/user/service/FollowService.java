@@ -43,5 +43,10 @@ public class FollowService {
         return followRepository.countByUserId(userId);
     }
 
+    // 팔로워 수 카운팅 메서드
+    public long getFollowedCount(Long userId) {
+        return followRepository.countByFollowId(userId);
+    }
+
 
 }
