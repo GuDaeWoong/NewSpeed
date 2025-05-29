@@ -28,8 +28,13 @@ public class WhiteListManager {
             "/api/users/login"
     };
 
+    private static final String[] IGNORE_VALIDATE = {
+            "/api/users/reissue",
+            "/api/users/logout"
+    };
+
     //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
-    public void validateWhitelistAccess(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
+    public boolean validateWhitelistAccess(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
         //입력받은 URI
         String requestURI = request.getRequestURI();
 
@@ -38,6 +43,7 @@ public class WhiteListManager {
 
         if (isLoggedIn && isWhitelistedUri(LOGOUT_ONLY_URIS, requestURI)) {
             filterException.writeExceptionResponse(httpResponse);
+            return false;
         }
 
         //Get 방식의 조회만 필터 제외하고, 다른 방식은(수정,삭제 등) 필터에 걸리도록 수정
@@ -45,17 +51,20 @@ public class WhiteListManager {
             if (requestURI.startsWith("/api/posts/")) {
                 if (!"GET".equalsIgnoreCase(httpMethod)) { //대소문자 구분없이 판단
                     filterException.writeExceptionResponse(httpResponse);
+                    return false;
                 }
             } else if (!isWhitelistedUri(PUBLIC_URIS, requestURI)) {
                 filterException.writeExceptionResponse(httpResponse);
+                return false;
             }
         }
+        return true;
     }
     
-    //재발급 uri 판단
-    public boolean isReissueUri(HttpServletRequest request) {
-        String uri = request.getRequestURI(); // 전체 URI 경로 얻기
-        return "/api/users/reissue".equals(uri);
+    //유효성 검증 무시 uri
+    public boolean isIgnoreValidate(HttpServletRequest request) {
+        String requestURI = request.getRequestURI(); // 전체 URI 경로 얻기
+        return isWhitelistedUri(IGNORE_VALIDATE, requestURI);
     }
 
     //화이트 리스트 인지 확인

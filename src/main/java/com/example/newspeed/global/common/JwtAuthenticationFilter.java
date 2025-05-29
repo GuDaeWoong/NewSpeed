@@ -20,6 +20,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        //토큰 검증 무시 리스트 확인
+        if(whiteListManager.isIgnoreValidate(request)) {
+            filterChain.doFilter(request,response);
+            return;
+        }
+
         //헤더에서 토큰 생성
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
 
@@ -27,16 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isLoggedIn = jwtTokenProvider.isLoggedIn(accessToken);
 
         //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
-        whiteListManager.validateWhitelistAccess(isLoggedIn, request, response);
+        if(!whiteListManager.validateWhitelistAccess(isLoggedIn, request, response)) return;
 
         //refresh token 이 null 일 경우 Security 초기화
         if(!isLoggedIn) {
             SecurityContextHolder.clearContext();
         }
-        //재발급 요청일 경우 유효성 검증 안함
-        else if(!whiteListManager.isReissueUri(request)){
+        else{
             //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
-            validateTokenOrThrow(accessToken,response);
+            validateToken(accessToken,response);
         }
 
         // 다음 필터로 넘김
@@ -46,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
 
     //토큰 유효성 검증 Or 예외 처리 (Access token)
-    private void validateTokenOrThrow(String accessToken,HttpServletResponse response) throws IOException{
+    private void validateToken(String accessToken, HttpServletResponse response) throws IOException{
         if(jwtTokenProvider.validateToken(accessToken)){
            //인증 정보 저장
             setAuthenticationFromToken(accessToken);

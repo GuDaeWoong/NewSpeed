@@ -49,20 +49,15 @@ public class AuthController {
     public ResponseEntity<Void> logout(HttpServletRequest request,
                                        HttpServletResponse response){
 
-        //Header 에서 accessToken 가져오기
-        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
-
-        //Cookie 에서 refreshToken 가져오기
-        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
-        
-        //accessToken 블랙리스트 추가
-        authService.addAccessTokenToBlackList(accessToken);
-
         //DB 에서 refreshToken 삭제
-        authService.deleteRefreshTokenDB(refreshToken);
+        authService.deleteRefreshTokenDB(request);
 
         //쿠키에서 refreshToken 리셋
         jwtTokenProvider.deleteRefreshTokenCookie(response);
+
+
+        //accessToken 블랙리스트 추가
+        if(!authService.addAccessTokenToBlackList(request)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         return new ResponseEntity<>(HttpStatus.OK);
 

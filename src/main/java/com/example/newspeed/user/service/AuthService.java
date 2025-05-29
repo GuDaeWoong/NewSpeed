@@ -65,7 +65,10 @@ public class AuthService {
     }
 
     //Refresh 토큰 삭제
-    public void deleteRefreshTokenDB(String refreshToken) {
+    public void deleteRefreshTokenDB(HttpServletRequest request) {
+        //Cookie 에서 refreshToken 가져오기
+        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
+
         if(refreshToken == null) return;
 
         Optional<Token> findToken = tokenRepository.findByRefreshToken(refreshToken);
@@ -73,8 +76,14 @@ public class AuthService {
     }
 
     //Access 토큰 블랙리스트 등록
-    public void addAccessTokenToBlackList(String accessToken) {
-        if(accessToken == null) return;
+    public boolean addAccessTokenToBlackList(HttpServletRequest request) {
+
+        //Header 에서 accessToken 가져오기
+        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
+
+        if(accessToken == null || tokenBlackListRepository.existsByAccessToken(accessToken)) return false;
+
         tokenBlackListRepository.save(new TokenBlackList(accessToken));
+        return true;
     }
 }

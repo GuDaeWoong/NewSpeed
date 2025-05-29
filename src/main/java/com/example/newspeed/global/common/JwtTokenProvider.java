@@ -1,6 +1,7 @@
 package com.example.newspeed.global.common;
 
 import com.example.newspeed.user.repository.TokenBlackListRepository;
+import com.example.newspeed.user.service.AuthService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
 
     //Access Token : 로그인 후 API 호출에 사용
     public String createAccessToken(Long userId) {
-        return createToken(userId, tokenValidityInMilliseconds /600);
+        return createToken(userId, tokenValidityInMilliseconds);
     }
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
@@ -184,4 +185,5 @@ public class JwtTokenProvider {
     private boolean isTokenInBlackList(String accessToken){
         return tokenBlackListRepository.existsByAccessToken(accessToken);
     }
+
 }

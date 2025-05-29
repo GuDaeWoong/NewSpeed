@@ -1,6 +1,5 @@
 package com.example.newspeed.global.common;
 
-import com.example.newspeed.user.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
