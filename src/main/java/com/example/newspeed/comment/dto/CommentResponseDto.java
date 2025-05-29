@@ -20,7 +20,8 @@ public class CommentResponseDto {
     private LocalDateTime modifiedAt;
 
     public CommentResponseDto(
-            Long id, Long userId, String nickname, String userUrl, Long postId, @NotNull String contents, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+            Long id, Long userId, String nickname, String userUrl, Long postId, @NotNull String contents,
+            LocalDateTime createdAt, LocalDateTime modifiedAt) {
 
         this.commentId = id;
         this.userId = userId;
