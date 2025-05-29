@@ -2,6 +2,7 @@ package com.example.newspeed.comment.service;
 
 import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
+import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
@@ -62,14 +63,13 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponseDto> findAllCommentByPostId(Long postId,int page,int size) {
+    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("modifiedAt").descending());
 
-        Page<Comment> commentPage = commentRepository.findByPostId(postId, pageable);
-        return commentPage.getContent().stream()
-                .map(CommentResponseDto::toDto)
-                .toList();
+        Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, pageable);
+
+        return commentPage;
     }
 
     @Transactional

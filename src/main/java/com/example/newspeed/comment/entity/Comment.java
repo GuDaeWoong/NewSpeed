@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "comment")
@@ -28,7 +30,6 @@ public class Comment extends BaseEntity {
 
     @NotNull
     private String contents;
-
 
     public Comment(User user, Post post, String contents) {
         this.user = user;

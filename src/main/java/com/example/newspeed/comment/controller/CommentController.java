@@ -3,12 +3,14 @@ package com.example.newspeed.comment.controller;
 
 import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
+import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -37,12 +39,14 @@ public class CommentController {
 
     // post 선택 하여 모든 댓글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> findAllCommentByPostId(
+    public ResponseEntity<Page<CommentWithLikesDto>> findAllCommentByPostId(
             @PathVariable Long postId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return new ResponseEntity<>(commentService.findAllCommentByPostId(postId, page, size), HttpStatus.OK);
+        Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, page, size);
+
+        return new ResponseEntity<>(commentPage, HttpStatus.OK);
     }
 
     // 댓글 업데이트
