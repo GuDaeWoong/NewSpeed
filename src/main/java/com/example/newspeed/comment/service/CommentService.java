@@ -65,7 +65,7 @@ public class CommentService {
 
     public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("modifiedAt").descending());
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by("modifiedAt").descending());
 
         Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, pageable);
 

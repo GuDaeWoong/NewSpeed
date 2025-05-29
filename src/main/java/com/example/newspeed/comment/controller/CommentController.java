@@ -41,7 +41,7 @@ public class CommentController {
     @GetMapping("/{postId}")
     public ResponseEntity<Page<CommentWithLikesDto>> findAllCommentByPostId(
             @PathVariable Long postId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, page, size);
