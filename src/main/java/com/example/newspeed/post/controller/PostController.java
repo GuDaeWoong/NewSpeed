@@ -55,6 +55,14 @@ public class PostController {
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<List<FindAllPostResponseDto>> searchPostByPeriod(@RequestBody SearchPeriodRequestDto requestDto) {
+        List<FindAllPostResponseDto> searchPost = postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate());
+
+        return new ResponseEntity<>(searchPost, HttpStatus.OK);
+    }
+
+
     @PatchMapping("/{id}")
     public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
 

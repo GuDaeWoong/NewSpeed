@@ -41,8 +41,9 @@ public class UserService {
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
         long followCount = followService.getFollowCount(userId);
+        long followedCount = followService.getFollowedCount(userId);
 
-        return FindUserResponseDto.toDto(findUser, followCount);
+        return FindUserResponseDto.toDto(findUser, followCount, followedCount);
     }
 
 

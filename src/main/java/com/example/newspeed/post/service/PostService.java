@@ -19,6 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,6 +101,16 @@ public class PostService {
 
         return responseDto;
     }
+
+    public List<FindAllPostResponseDto> findPostsByPeriod(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate.atStartOfDay(); // 해당일 00:00:00
+        LocalDateTime end = endDate.atTime(LocalTime.MAX); // 해당일 23:59:59까지 포함
+
+        List<Post> posts = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end);
+
+        return posts.stream().map(FindAllPostResponseDto::toPostDto).toList();
+    }
+
 
     @Transactional
     public Post findPostById(Long id) {
