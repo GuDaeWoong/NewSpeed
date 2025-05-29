@@ -43,6 +43,7 @@ public class UserService {
         return user.get();
     }
 
+    // 유저 프로필 수정
     @Transactional
     public UpdateProfileResponseDto updateProfile(Long userId, String nickname, String userUrl, String password) {
 
@@ -56,5 +57,22 @@ public class UserService {
         userRepository.save(findUser);
 
         return UpdateProfileResponseDto.toDto(findUser);
+    }
+
+    // 유저 비밀번호 수정
+    @Transactional
+    public void updatePassword(Long userId, String currentPassword, String newPassword) {
+
+        User findUser = userRepository.findByIdOrElseThrow(userId);
+
+        // 요청 받은 currentPassword와 현재 DB의 비밀번호가 일치하는지 확인
+        passwordManager.validatePasswordMatchOrThrow(currentPassword, findUser.getPassword());
+
+        // 암호화
+        String encodePassword = passwordManager.encodePassword(newPassword);
+
+        // 비밀번호 수정
+        findUser.updatePassword(encodePassword);
+        userRepository.save(findUser);
     }
 }

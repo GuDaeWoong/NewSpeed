@@ -3,8 +3,10 @@ package com.example.newspeed.comment.controller;
 
 import com.example.newspeed.comment.dto.CommentRequestDto;
 import com.example.newspeed.comment.dto.CommentResponseDto;
+import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,9 +37,12 @@ public class CommentController {
 
     // post 선택 하여 모든 댓글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<List<CommentResponseDto>> findAllCommentByPostId(@PathVariable Long postId
+    public ResponseEntity<List<CommentResponseDto>> findAllCommentByPostId(
+            @PathVariable Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        return new ResponseEntity<>(commentService.findAllCommentByPostId(postId), HttpStatus.OK);
+        return new ResponseEntity<>(commentService.findAllCommentByPostId(postId, page, size), HttpStatus.OK);
     }
 
     // 댓글 업데이트
@@ -47,6 +52,16 @@ public class CommentController {
     ) {
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
         commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
+                                              @RequestBody DeleteCommentDto deleteDto
+    ) {
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        commentService.deleteComment(commentId, deleteDto, currentUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
