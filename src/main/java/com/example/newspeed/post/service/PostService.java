@@ -10,10 +10,8 @@ import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;

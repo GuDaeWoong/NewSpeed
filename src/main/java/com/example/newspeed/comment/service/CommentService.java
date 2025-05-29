@@ -15,6 +15,10 @@ import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,9 +62,13 @@ public class CommentService {
         );
     }
 
-    public List<CommentResponseDto> findAllCommentByPostId(Long postId) {
-        return commentRepository.findByPostId(postId)
-                .stream().map(CommentResponseDto::toDto)
+    public List<CommentResponseDto> findAllCommentByPostId(Long postId,int page,int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("modifiedAt").descending());
+
+        Page<Comment> commentPage = commentRepository.findByPostId(postId, pageable);
+        return commentPage.getContent().stream()
+                .map(CommentResponseDto::toDto)
                 .toList();
     }
 
