@@ -1,11 +1,15 @@
 package com.example.newspeed.user.entity;
 
+import com.example.newspeed.comment.entity.Comment;
+import com.example.newspeed.comment.entity.CommentLikes;
 import com.example.newspeed.global.entity.BaseEntity;
 import com.example.newspeed.post.entity.Post;
+import com.example.newspeed.post.entity.PostLikes;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.apache.logging.log4j.util.Strings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -29,9 +33,24 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Token> tokens = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Follow> follows = new ArrayList<>();
+
     // 유저와 관련된 post 들을 한 번에 조회를 위함 -> User -> Post 1:N 관계 설정
-    @OneToMany(mappedBy = "user")
-    private List<Post> posts;
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.REMOVE)
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<PostLikes> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<CommentLikes> commentLikes = new ArrayList<>();
 
     public User() {
     }
