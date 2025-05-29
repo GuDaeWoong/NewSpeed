@@ -5,6 +5,7 @@ import com.example.newspeed.comment.dto.CommentResponseDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
+import com.example.newspeed.global.common.SecurityConfig;
 import com.example.newspeed.global.error.PasswordMismatchException;
 import com.example.newspeed.global.error.UnauthorizedAccessException;
 import com.example.newspeed.post.entity.Post;
@@ -29,6 +30,8 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserService userService;
     private final PostService postService;
+    private final SecurityConfig securityConfig;
+
 
     @Transactional
     public CommentResponseDto saveComment(
@@ -72,6 +75,7 @@ public class CommentService {
         comment.updateComment(commentRequestDto);
     }
 
+    @Transactional
     public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
@@ -81,7 +85,7 @@ public class CommentService {
             throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
         }
 
-        if (!user.getPassword().equals(deleteDto.getPassword())) {
+        if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(),user.getPassword())) {
             throw new PasswordMismatchException("The password you entered does not match.");
         }
         commentRepository.delete(comment);
