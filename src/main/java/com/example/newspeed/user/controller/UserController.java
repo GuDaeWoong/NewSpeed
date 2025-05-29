@@ -44,6 +44,12 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * 로그인 유저 프로필 수정
+     *
+     * @param requestDto 닉네임, 프로필이미지url, 패스워드
+     * @return 로그인 유저 id + 변경 후 닉네임, 프로필이미지url
+     */
     @PatchMapping("/profile")
     public ResponseEntity<UpdateProfileResponseDto> updateProfile(@RequestBody UpdateProfileRequestDto requestDto) {
 
@@ -56,6 +62,25 @@ public class UserController {
                                                                          requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    /**
+     * 로그인 유저 비밀번호 수정
+     *
+     * @param requestDto 닉네임, 프로필이미지url, 패스워드
+     * @return -
+     */
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        userService.updatePassword(currentUserId,
+                                   requestDto.getCurrentPassword(),
+                                   requestDto.getNewPassword());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     /**
      * 로그인 유저 정보 조회 (마이페이지 조회)
      * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
