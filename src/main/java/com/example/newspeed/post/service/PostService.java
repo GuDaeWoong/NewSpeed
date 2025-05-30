@@ -57,6 +57,7 @@ public class PostService {
                         savePost.getImageUrl(),
                         savePost.getUser().getUserUrl(),
                         savePost.getPostLikes().size(),
+                        savePost.getComments().size(),
                         savePost.getCreatedAt(),
                         savePost.getModifiedAt()
                 );
@@ -97,6 +98,7 @@ public class PostService {
                 post.getImageUrl(),
                 post.getUserUrl(),
                 post.getPostLikes().size(),
+                post.getComments().size(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );
@@ -149,6 +151,7 @@ public class PostService {
                 post.getImageUrl(),
                 post.getUserUrl(),
                 post.getPostLikes().size(),
+                post.getComments().size(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );

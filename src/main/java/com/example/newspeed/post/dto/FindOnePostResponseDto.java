@@ -14,6 +14,7 @@ public class FindOnePostResponseDto {
     private final String imageUrl;
     private final String userUrl;
     private final int postLikes;
+    private final int postComments;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -24,6 +25,7 @@ public class FindOnePostResponseDto {
                                   String imageUrl,
                                   String userUrl,
                                   int postLikes,
+                                  int postComments,
                                   LocalDateTime createdAt,
                                   LocalDateTime modifiedAt
     ) {
@@ -34,6 +36,7 @@ public class FindOnePostResponseDto {
         this.imageUrl = imageUrl;
         this.userUrl = userUrl;
         this.postLikes = postLikes;
+        this.postComments = postComments;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
