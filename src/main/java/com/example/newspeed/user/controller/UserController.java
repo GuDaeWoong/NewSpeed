@@ -2,7 +2,10 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.user.dto.*;
+import com.example.newspeed.user.service.AuthService;
 import com.example.newspeed.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
@@ -100,7 +104,7 @@ public class UserController {
      * @return 조회된 유저 리스트
      */
     @GetMapping
-    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "1") int page,
                                                                   @RequestParam(defaultValue = "10") int size) {
 
         List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(page, size);
@@ -108,13 +112,25 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+    /**
+     * 유저 삭제 (회원탈퇴)
+     *
+     * @param requestDto 비밀번호
+     * @param request
+     * @param response
+     * @return -
+     */
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto) {
+    public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
         userService.deleteUser(currentUserId, requestDto.getPassword());
+
+        authService.logout(request, response);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
