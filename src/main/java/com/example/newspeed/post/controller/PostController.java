@@ -4,6 +4,7 @@ package com.example.newspeed.post.controller;
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPostAPI(@RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostResponseDto> createPostAPI(@RequestBody @Valid PostRequestDto dto) {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
