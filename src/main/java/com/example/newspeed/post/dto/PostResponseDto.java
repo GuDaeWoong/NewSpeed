@@ -1,11 +1,7 @@
 package com.example.newspeed.post.dto;
 
-import com.example.newspeed.post.entity.Post;
-import com.example.newspeed.post.entity.PostLikes;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 public class PostResponseDto {
@@ -17,6 +13,7 @@ public class PostResponseDto {
     private final String imageUrl;
     private final String userUrl;
     private final int postLikes;
+    private final int postComments;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -27,6 +24,7 @@ public class PostResponseDto {
                            String imageUrl,
                            String userUrl,
                            int postLikes,
+                           int postComments,
                            LocalDateTime createdAt,
                            LocalDateTime modifiedAt
     ) {
@@ -37,6 +35,7 @@ public class PostResponseDto {
         this.imageUrl = imageUrl;
         this.userUrl = userUrl;
         this.postLikes = postLikes;
+        this.postComments = postComments;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }

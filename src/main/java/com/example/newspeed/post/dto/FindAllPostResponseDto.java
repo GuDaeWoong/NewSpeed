@@ -15,6 +15,7 @@ public class FindAllPostResponseDto {
     private final String imageUrl;
     private final String userUrl;
     private final int postLikes;
+    private final int postComments;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -25,6 +26,7 @@ public class FindAllPostResponseDto {
                                   String imageUrl,
                                   String userUrl,
                                   int postLikes,
+                                  int postComments,
                                   LocalDateTime createdAt,
                                   LocalDateTime modifiedAt
     ) {
@@ -35,6 +37,7 @@ public class FindAllPostResponseDto {
         this.imageUrl = imageUrl;
         this.userUrl = userUrl;
         this.postLikes = postLikes;
+        this.postComments = postComments;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
@@ -48,6 +51,7 @@ public class FindAllPostResponseDto {
                 post.getImageUrl(),
                 post.getUserUrl(),
                 post.getPostLikes().size(),
+                post.getComments().size(),
                 post.getCreatedAt(),
                 post.getModifiedAt()
         );
