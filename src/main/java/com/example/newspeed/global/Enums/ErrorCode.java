@@ -39,7 +39,10 @@ public enum ErrorCode {
     // 인증 관련
     REQUIRED_LOGIN(HttpStatus.BAD_REQUEST, "로그인이 필요합니다."),
     REQUIRED_LOGOUT(HttpStatus.BAD_REQUEST, "로그인 상태에서는 할 수 없습니다."),
-    INVALID_ACCESS(HttpStatus.FORBIDDEN, "잘못된 접근입니다.");
+    INVALID_ACCESS(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
+
+    // 페이징 관련
+    PAGE_NOT_FOUND(HttpStatus.FORBIDDEN, "요청하신 페이지가 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

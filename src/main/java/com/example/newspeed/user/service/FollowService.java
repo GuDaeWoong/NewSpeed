@@ -48,5 +48,9 @@ public class FollowService {
         return followRepository.countByFollowId(userId);
     }
 
+    // 유저가 팔로우 하고 있는 대상인지 확인하는 메서드
+    public boolean isFollow(Long userId, Long followId) {
+        return followRepository.existsByUserIdAndFollowId(userId, followId);
+    }
 
 }
