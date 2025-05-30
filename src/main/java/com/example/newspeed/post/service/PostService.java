@@ -1,6 +1,8 @@
 package com.example.newspeed.post.service;
 
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.post.dto.FindAllPostResponseDto;
 import com.example.newspeed.post.dto.FindOnePostResponseDto;
 import com.example.newspeed.post.dto.PostResponseDto;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -45,6 +48,26 @@ public class PostService {
         User user = userService.findUserById(currentUserId);
 
         Post newPost = new Post(user, title, contents, imageUrl);
+
+        // 게시글 생성 시 제목이 비어있을 시 예외처리
+        if (newPost.getTitle() == null) {
+            throw new CustomException(ErrorCode.POST_NOT_TITLE);
+        }
+
+        // 게시글 생성 시 내용이 비어있을 시 예외처리
+        if (newPost.getContents() == null) {
+            throw new CustomException(ErrorCode.POST_NOT_CONTENTS);
+        }
+
+        // 게시글 생성 시 이미지가 비어있을 시 예외처리
+        if (newPost.getImageUrl() == null) {
+            throw new CustomException(ErrorCode.POST_NOT_IMAGE);
+        }
+
+        // 게시글 생성 시 제목의 길이가 255자를 초과할 경우 예외처리
+        if (newPost.getTitle().length() > 255) {
+            throw new CustomException(ErrorCode.TITLE_LENGTH_OVER);
+        }
 
         Post savePost = postRepository.save(newPost);
 
@@ -87,8 +110,8 @@ public class PostService {
     @Transactional
     public FindOnePostResponseDto findOnePost(Long id) {
 
-        // 레포지토리에서 생성한 기능을 사용
-        Post post = postRepository.findByIdOrElseThrow(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         FindOnePostResponseDto responseDto = new FindOnePostResponseDto(
                 id,
@@ -127,10 +150,15 @@ public class PostService {
     @Transactional
     public UpdatePostResponseDto updatedPost(Long id, Long currentUserId, String title, String contents, String imageUrl) {
 
-        Optional<Post> findById = postRepository.findById(id);
-        Post post = findById.get();
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+
 
         if (currentUserId.equals(post.getUser().getId())) {
+            if (title.equals(post.getTitle()) && contents.equals(post.getContents()) && imageUrl.equals(post.getImageUrl())) {
+                throw new CustomException(ErrorCode.POST_NOT_CHANGE);
+            }
+
             if (title != null) {
                 post.setTitle(title);
             }
@@ -142,7 +170,10 @@ public class PostService {
             if (imageUrl != null) {
                 post.setImageUrl(imageUrl);
             }
+        } else {
+            throw new CustomException(ErrorCode.POST_NOT_OWNED);
         }
+
         UpdatePostResponseDto responseDto = new UpdatePostResponseDto(
                 post.getId(),
                 post.getUser().getNickname(),
@@ -164,14 +195,16 @@ public class PostService {
     public void deletePost(Long id, Long currentUserId, String password) {
 
         // 입력받은 아이디로 Post 불러오기
-        Post post = postRepository.findByIdOrElseThrow(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
         if (currentUserId.equals(post.getUser().getId())) {
             // 입력한 비밀번호와 유저 비밀번호가 같은지 검증
             passwordManager.validatePasswordMatchOrThrow(password, post.getUser().getPassword());
 
             postRepository.delete(post);
-
+        } else {
+            throw new CustomException(ErrorCode.POST_NOT_OWNED);
         }
     }
 }
