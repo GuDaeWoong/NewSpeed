@@ -1,6 +1,6 @@
 package com.example.newspeed.auth.repository;
 
-import com.example.newspeed.user.entity.Token;
+import com.example.newspeed.auth.entity.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

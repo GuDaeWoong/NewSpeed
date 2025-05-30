@@ -15,12 +15,14 @@ public class WhiteListManager {
 
     private final FilterException filterException;
 
+    //Get 방식일때만 로그아웃 허용
+    private static final String ONLY_GET_PUBLIC_URI = "/api/posts";
+
     //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능
     private static final String[] PUBLIC_URIS = {
             "/api/users/signup",
-            "/api/login",
-            "/api/reissue",
-            "/api/posts"
+            "/api/login"
+
     };
 
     //로그인 상태에서 진입 불가 URI - 회원가입, 로그인 기능은 로그아웃 상태에서만 진입 가능
@@ -37,38 +39,41 @@ public class WhiteListManager {
 
     //화이트 리스트 판별
     public boolean isWhiteList(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(!isOnlyLogoutUris(isLoggedIn, request, response)) return false;
-        if(!isPublicUris(isLoggedIn, request, response)) return false;
-        return true;
+        if(isLoggedIn){
+            if(isOnlyLogoutUris(request, response)) return true;
+        }
+        if(isPublicUris(request, response)) return true;
+        if(isPublicGetUris(request, response)) return true;
+        return false;
     }
 
     //로그아웃 상태에서만 집입가능한 uri
-    public boolean isOnlyLogoutUris(boolean isLoggedIn,HttpServletRequest request,HttpServletResponse httpResponse) throws IOException{
-        if (isLoggedIn && isWhitelistedUri(LOGOUT_ONLY_URIS, request.getRequestURI())) {
-            filterException.writeExceptionResponse(httpResponse);
+    public boolean isOnlyLogoutUris(HttpServletRequest request,HttpServletResponse response) throws IOException{
+        if (isWhitelistedUri(LOGOUT_ONLY_URIS, request.getRequestURI())) {
+            filterException.writeExceptionResponse(response);
             return false;
         }
         return true;
     }
 
     //로그인 없이 진입가능한 uri
-    public boolean isPublicUris(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException{
-        //Get 방식의 조회만 필터 제외하고, 다른 방식은(수정,삭제 등) 필터에 걸리도록 수정
-        if (!isLoggedIn) {
-            if (request.getMethod().startsWith("/api/posts/")) {
-                if (!"GET".equalsIgnoreCase(request.getRequestURI())) { //대소문자 구분없이 판단
-                    filterException.writeExceptionResponse(httpResponse);
-                    return false;
-                }
-            } else if (!isWhitelistedUri(PUBLIC_URIS, request.getRequestURI())) {
-                filterException.writeExceptionResponse(httpResponse);
-                return false;
-            }
+    public boolean isPublicUris(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        if (!isWhitelistedUri(PUBLIC_URIS, request.getRequestURI())) {
+            filterException.writeExceptionResponse(response);
+            return false;
         }
         return true;
     }
 
-    
+    //로그인 없이 진입가능한 Get uri (post)
+    private boolean isPublicGetUris(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        if (request.getRequestURI().startsWith(ONLY_GET_PUBLIC_URI) && !"GET".equalsIgnoreCase(request.getMethod())) {
+            filterException.writeExceptionResponse(response);
+            return false;
+        }
+        return true;
+    }
+
     //유효성 검증 무시 uri
     public boolean isNoAuthRequiredUris(HttpServletRequest request) {
         return isWhitelistedUri(NO_AUTH_REQUIRED_URIS, request.getRequestURI());
