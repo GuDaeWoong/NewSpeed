@@ -75,14 +75,13 @@ public class CommentService {
         return commentPage;
     }
 
-
     @Transactional
     public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
         comment.updateComment(commentRequestDto);
     }
@@ -91,14 +90,14 @@ public class CommentService {
     public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
 
         if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(),user.getPassword())) {
-            throw new PasswordMismatchException("The password you entered does not match.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         commentRepository.delete(comment);
 
