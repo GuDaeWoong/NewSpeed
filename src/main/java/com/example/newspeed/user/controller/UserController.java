@@ -112,14 +112,28 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
-    /**
-     * 유저 삭제 (회원탈퇴)
-     *
-     * @param requestDto 비밀번호
-     * @param request
-     * @param response
-     * @return -
-     */
+
+    @GetMapping("/with-follow")
+    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(@RequestParam(defaultValue = "1") int page,
+                                                                                   @RequestParam(defaultValue = "10") int size) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+
+        List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, page, size);
+
+        return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
+    }
+
+        /**
+         * 유저 생성 (회원탈퇴)
+         *
+         * @param requestDto 비밀번호
+         * @param request
+         * @param response
+         * @return -
+         */
+
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto,
                                            HttpServletRequest request,
