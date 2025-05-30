@@ -6,7 +6,7 @@ import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
-import com.example.newspeed.global.common.SecurityConfig;
+import com.example.newspeed.global.config.SecurityConfig;
 import com.example.newspeed.global.error.PasswordMismatchException;
 import com.example.newspeed.global.error.UnauthorizedAccessException;
 import com.example.newspeed.post.entity.Post;
@@ -20,13 +20,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.example.newspeed.global.common;
+package com.example.newspeed.global.error;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

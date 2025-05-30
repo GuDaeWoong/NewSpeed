@@ -1,11 +1,13 @@
 package com.example.newspeed.post.controller;
 
 
-import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
+import com.example.newspeed.user.dto.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -26,9 +28,9 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPostAPI(@RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody PostRequestDto dto) {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         PostResponseDto responseDto = postService.createPost(currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
@@ -64,9 +66,9 @@ public class PostController {
 
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@PathVariable Long id, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable Long id, @RequestBody PostRequestDto dto) {
 
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         UpdatePostResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
@@ -74,9 +76,9 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePostAPI(@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
+    public ResponseEntity<Void> deletePostAPI(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
 
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         postService.deletePost(id, currentUserId, dto.getPassword());
 

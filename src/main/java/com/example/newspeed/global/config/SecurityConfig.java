@@ -1,5 +1,11 @@
-package com.example.newspeed.global.common;
+package com.example.newspeed.global.config;
 
+import com.example.newspeed.auth.filter.JwtAuthenticationFilter;
+import com.example.newspeed.auth.filter.WhiteListManager;
+import com.example.newspeed.auth.jwt.JwtAuthenticationProvider;
+import com.example.newspeed.auth.jwt.JwtTokenProvider;
+import com.example.newspeed.auth.jwt.TokenExtractor;
+import com.example.newspeed.global.error.FilterException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +24,8 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final WhiteListManager whiteListManager;
-    private final FilterException filterException;
+    private final TokenExtractor tokenExtractor;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -27,7 +34,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider,whiteListManager,filterException);
+        return new JwtAuthenticationFilter(jwtTokenProvider,whiteListManager,tokenExtractor,jwtAuthenticationProvider);
     }
 
     @Bean

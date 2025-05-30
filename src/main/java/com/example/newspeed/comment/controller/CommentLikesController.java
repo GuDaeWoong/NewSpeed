@@ -2,7 +2,7 @@ package com.example.newspeed.comment.controller;
 
 import com.example.newspeed.comment.dto.CommentLikesDto;
 import com.example.newspeed.comment.service.CommentLikesService;
-import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.user.dto.CustomUserDetails;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;

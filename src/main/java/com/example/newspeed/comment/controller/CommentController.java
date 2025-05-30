@@ -6,8 +6,8 @@ import com.example.newspeed.comment.dto.CommentResponseDto;
 import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.service.CommentService;
-import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.post.service.PostService;
+import com.example.newspeed.user.dto.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,24 +16,21 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
-    private final JwtTokenProvider jwtTokenProvider;
-
 
     @PostMapping("/{postId}")
     public ResponseEntity<CommentResponseDto> saveComment(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId,
             @RequestBody CommentRequestDto requestDto
     ) {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
         return new ResponseEntity<>(commentService.saveComment(postId, requestDto, currentUserId), HttpStatus.CREATED);
     }
 
@@ -51,20 +48,22 @@ public class CommentController {
 
     // 댓글 업데이트
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Void> updateCommnet(@PathVariable Long commentId,
+    public ResponseEntity<Void> updateCommnet(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              @PathVariable Long commentId,
                                               @Valid @RequestBody CommentRequestDto commentRequestDto
     ) {
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
         commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
+    public ResponseEntity<Void> deleteComment(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              @PathVariable Long commentId,
                                               @RequestBody DeleteCommentDto deleteDto
     ) {
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
         commentService.deleteComment(commentId, deleteDto, currentUserId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -1,7 +1,6 @@
 package com.example.newspeed.user.controller;
 
 import com.example.newspeed.global.Enums.ErrorCode;
-import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.dto.CustomUserDetails;
 import com.example.newspeed.user.dto.followDto;
