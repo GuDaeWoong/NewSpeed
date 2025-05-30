@@ -20,13 +20,15 @@ public class FindUserResponseDto {
 
     private final Long followerCount; // 팔로워 수
 
+    private final Long postCount; // 게시글 수
+
     private final LocalDateTime createdAt;
 
     private final LocalDateTime modifiedAt;
 
     public FindUserResponseDto(
             Long userId, String email, String nickname, String userUrl,
-            Long followCount, Long followerCount,
+            Long followCount, Long followerCount, Long postCount,
             LocalDateTime createdAt, LocalDateTime modifiedAt)
     {
         this.userId = userId;
@@ -35,18 +37,20 @@ public class FindUserResponseDto {
         this.userUrl = userUrl;
         this.followCount = followCount;
         this.followerCount = followerCount;
+        this.postCount = postCount;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static FindUserResponseDto toDto (User user, long followCount, long followerCount) {
+    public static FindUserResponseDto toDto (User user, long followCount, long followerCount, Long postCount) {
         return new FindUserResponseDto(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
                 user.getUserUrl(),
-                followCount,
-                followerCount,// 팔로우 수 (User 가 팔로우한 유저 목록의 크기)
+                followCount, // 팔로우 수: User 가 팔로우한 유저 수
+                followerCount, // 팔로워 수: User 가 팔로워 받은 유저 수
+                postCount, // 게시글 수: User 가 작성한 게시글 수
                 user.getCreatedAt(),
                 user.getModifiedAt()
         );
