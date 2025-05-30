@@ -3,10 +3,8 @@ package com.example.newspeed.global.common;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.error.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 @Component
 @RequiredArgsConstructor

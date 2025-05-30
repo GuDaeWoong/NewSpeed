@@ -1,11 +1,10 @@
-package com.example.newspeed.user.controller;
+package com.example.newspeed.auth.controller;
 
-import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.user.dto.AccessTokenResponseDto;
-import com.example.newspeed.user.dto.CustomUserDetails;
+import com.example.newspeed.auth.jwt.*;
+import com.example.newspeed.auth.dto.AccessTokenResponseDto;
 import com.example.newspeed.user.dto.LoginRequestDto;
-import com.example.newspeed.user.dto.TokenResponseDto;
-import com.example.newspeed.user.service.AuthService;
+import com.example.newspeed.auth.dto.TokenResponseDto;
+import com.example.newspeed.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -13,20 +12,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenCookieUtils tokenCookieUtils;
 
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto,
@@ -36,7 +31,7 @@ public class AuthController {
         TokenResponseDto token = authService.login(requestDto);
 
         // refresh 토큰을 쿠키에 추가
-        jwtTokenProvider.addRefreshTokenToCookie(token.getRefreshToken(), response);
+        tokenCookieUtils.addRefreshTokenToCookie(token.getRefreshToken(), response);
 
         return new ResponseEntity<>(new AccessTokenResponseDto(token.getAccessToken()),HttpStatus.OK);
 
@@ -58,27 +53,5 @@ public class AuthController {
 
         return new ResponseEntity<>(new AccessTokenResponseDto(newAccessToken), HttpStatus.OK);
     }
-
-
-
-
-    //토큰 확인용 테스트 코드 > 삭제예정
-    @PostMapping("/tokentest")
-    public ResponseEntity<TokenResponseDto> loginTest(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                      HttpServletRequest request){
-
-        String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
-        if(!jwtTokenProvider.validateToken(accessToken)) accessToken = "유효기간만료";
-        String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
-
-        Long id = jwtTokenProvider.getUserIdFromSecurity();
-        String userId = userDetails.getUsername();
-
-
-        new TokenResponseDto(accessToken, refreshToken);
-
-        return new ResponseEntity<>(new TokenResponseDto(accessToken, refreshToken), HttpStatus.OK);
-    }
-
 
 }

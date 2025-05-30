@@ -1,6 +1,6 @@
 package com.example.newspeed.user.controller;
 
-import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.user.dto.*;
 import com.example.newspeed.user.service.AuthService;
 import com.example.newspeed.user.service.UserService;
@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,10 +54,10 @@ public class UserController {
      * @return 로그인 유저 id + 변경 후 닉네임, 프로필이미지url
      */
     @PatchMapping("/profile")
-    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@RequestBody UpdateProfileRequestDto requestDto) {
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateProfileRequestDto requestDto) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
                                                                          requestDto.getNickname(),
@@ -72,10 +73,10 @@ public class UserController {
      * @return -
      */
     @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         userService.updatePassword(currentUserId,
                                    requestDto.getCurrentPassword(),
@@ -88,8 +89,8 @@ public class UserController {
      * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
      */
     @GetMapping("/me")
-    public ResponseEntity<FindUserResponseDto> findMyPage() {
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+    public ResponseEntity<FindUserResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long currentUserId = userDetails.getId();
 
         FindUserResponseDto findUserResponseDto = userService.findByIdUser(currentUserId);
 
@@ -135,16 +136,14 @@ public class UserController {
          */
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto,
-                                           HttpServletRequest request,
-                                           HttpServletResponse response) {
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody DeleteUserRequestDto requestDto,
+                                           HttpServletRequest request, HttpServletResponse response) {
 
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
+      
+        authService.logout(request, response);
 
         userService.deleteUser(currentUserId, requestDto.getPassword());
-
-        authService.logout(request, response);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

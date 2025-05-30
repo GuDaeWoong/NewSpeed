@@ -1,5 +1,6 @@
-package com.example.newspeed.global.common;
+package com.example.newspeed.auth.filter;
 
+import com.example.newspeed.global.error.FilterException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,22 +18,29 @@ public class WhiteListManager {
     //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능
     private static final String[] PUBLIC_URIS = {
             "/api/users/signup",
-            "/api/users/login",
-            "/api/users/reissue",
+            "/api/login",
+            "/api/reissue",
             "/api/posts"
     };
 
     //로그인 상태에서 진입 불가 URI - 회원가입, 로그인 기능은 로그아웃 상태에서만 진입 가능
     private static final String[] LOGOUT_ONLY_URIS = {
             "/api/users/signup",
-            "/api/users/login"
+            "/api/login"
     };
 
     //토큰 유효성 검사 무시하는 URI
     private static final String[] NO_AUTH_REQUIRED_URIS = {
-            "/api/users/reissue",
-            "/api/users/logout"
+            "/api/reissue",
+            "/api/logout"
     };
+
+    //화이트 리스트 판별
+    public boolean isWhiteList(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(!isOnlyLogoutUris(isLoggedIn, request, response)) return false;
+        if(!isPublicUris(isLoggedIn, request, response)) return false;
+        return true;
+    }
 
     //로그아웃 상태에서만 집입가능한 uri
     public boolean isOnlyLogoutUris(boolean isLoggedIn,HttpServletRequest request,HttpServletResponse httpResponse) throws IOException{
