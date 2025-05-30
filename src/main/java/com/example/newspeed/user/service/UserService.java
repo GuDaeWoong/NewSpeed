@@ -54,7 +54,7 @@ public class UserService {
 
     public List<FindUserResponseDto> findAllUsersPaged(int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<User> userPage = userRepository.findAll(pageable);
 
         List<FindUserResponseDto> responseDtos = new ArrayList<>();

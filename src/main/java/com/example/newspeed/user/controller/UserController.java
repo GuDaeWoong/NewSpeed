@@ -104,7 +104,7 @@ public class UserController {
      * @return 조회된 유저 리스트
      */
     @GetMapping
-    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "1") int page,
                                                                   @RequestParam(defaultValue = "10") int size) {
 
         List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(page, size);
