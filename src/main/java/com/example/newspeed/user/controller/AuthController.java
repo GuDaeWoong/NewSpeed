@@ -72,7 +72,7 @@ public class AuthController {
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
 
         Long id = jwtTokenProvider.getUserIdFromSecurity();
-        String userId = userDetails.getUsername();
+        Long userId = userDetails.getId();
 
 
         new TokenResponseDto(accessToken, refreshToken);

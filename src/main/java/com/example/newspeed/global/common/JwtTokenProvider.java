@@ -1,17 +1,24 @@
 package com.example.newspeed.global.common;
 
+import com.example.newspeed.global.Enums.ErrorCode;
+import com.example.newspeed.global.error.CustomException;
+import com.example.newspeed.user.dto.CustomUserDetails;
+import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.TokenBlackListRepository;
+import com.example.newspeed.user.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -21,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
     private Key key;
 
@@ -29,9 +37,8 @@ public class JwtTokenProvider {
 
     //토큰 블랙리스트
     private final TokenBlackListRepository tokenBlackListRepository;
-    public JwtTokenProvider(TokenBlackListRepository tokenBlackListRepository) {
-        this.tokenBlackListRepository = tokenBlackListRepository;
-    }
+    private final UserRepository userRepository;
+
 
     @PostConstruct
     protected void init() {
@@ -100,8 +107,14 @@ public class JwtTokenProvider {
     //토큰으로부터 유저 정보를 받기
     public Authentication getAuthentication(String token) {
         Long userId = getUserIdByToken(token);
-        List<GrantedAuthority> authorities = List.of(); // 권한 없거나 기본 권한 설정
-        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+        // DB 에서 사용자 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // CustomUserDetails 생성
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+        return new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
     }
 
     // 토큰에서 userId 추출
