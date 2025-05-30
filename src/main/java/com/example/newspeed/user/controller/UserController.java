@@ -113,7 +113,7 @@ public class UserController {
     }
 
     /**
-     * 유저 생성 (회원탈퇴)
+     * 유저 삭제 (회원탈퇴)
      *
      * @param requestDto 비밀번호
      * @param request
