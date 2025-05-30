@@ -18,9 +18,12 @@ public enum ErrorCode {
 
     // 게시글 관련
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다."),
-    BOARD_NOT_OWNED(HttpStatus.BAD_REQUEST, "본인의 게시글만 삭제할 수 있습니다."),
-    BOARD_NOT_EXISTING(HttpStatus.NO_CONTENT, "게시글이 존재하지 않습니다."),
+    POST_NOT_OWNED(HttpStatus.BAD_REQUEST, "본인의 게시글만 수정 및 삭제할 수 있습니다."),
     POST_NOT_CHANGE(HttpStatus.BAD_REQUEST, "변경할 내용을 입력해야 합니다."),
+    POST_NOT_TITLE(HttpStatus.BAD_REQUEST,"제목을 입력해야 합니다."),
+    POST_NOT_CONTENTS(HttpStatus.BAD_REQUEST,"내용을 입력해야 합니다."),
+    POST_NOT_IMAGE(HttpStatus.BAD_REQUEST,"이미지를 삽입해야 합니다."),
+    TITLE_LENGTH_OVER(HttpStatus.BAD_REQUEST, "제목은 255자까지 입력 가능합니다."),
 
     // 댓글 관련
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
@@ -36,7 +39,10 @@ public enum ErrorCode {
     // 인증 관련
     REQUIRED_LOGIN(HttpStatus.BAD_REQUEST, "로그인이 필요합니다."),
     REQUIRED_LOGOUT(HttpStatus.BAD_REQUEST, "로그인 상태에서는 할 수 없습니다."),
-    INVALID_ACCESS(HttpStatus.FORBIDDEN, "잘못된 접근입니다.");
+    INVALID_ACCESS(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
+
+    // 페이징 관련
+    PAGE_NOT_FOUND(HttpStatus.FORBIDDEN, "요청하신 페이지가 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String message;

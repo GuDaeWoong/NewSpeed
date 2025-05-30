@@ -1,6 +1,4 @@
 package com.example.newspeed.post.controller;
-
-
 import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
@@ -26,7 +24,8 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody PostRequestDto dto) {
+
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
@@ -56,8 +55,17 @@ public class PostController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<FindAllPostResponseDto>> searchPostByPeriod(@RequestBody SearchPeriodRequestDto requestDto) {
-        List<FindAllPostResponseDto> searchPost = postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate());
+    public ResponseEntity<PagePostResponseDto<FindAllPostResponseDto>> searchPostByPeriod(
+            @RequestBody SearchPeriodRequestDto requestDto,
+            @RequestParam (defaultValue = "1") int page,
+            @RequestParam (defaultValue = "10") int size
+    ) {
+
+        // Page -> 0-based 로 변환
+        page -= 1;
+
+        PagePostResponseDto<FindAllPostResponseDto> searchPost =
+                postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate(), page, size);
 
         return new ResponseEntity<>(searchPost, HttpStatus.OK);
     }

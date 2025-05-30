@@ -21,8 +21,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
+
 
 @Service
 @RequiredArgsConstructor
@@ -59,11 +59,19 @@ public class CommentService {
         );
     }
 
-    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, int page, int size) {
+    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, Pageable pageable) {
+        // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
 
-        Pageable pageable = PageRequest.of(page-1, size, Sort.by("modifiedAt").descending());
-
-        Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, pageable);
+        Pageable adjustedPageable = PageRequest.of(pageNumber, pageable.getPageSize(), pageable.getSort());
+        Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, adjustedPageable);
+        if (commentPage.isEmpty() && pageNumber >= commentPage.getTotalPages()) {
+            throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
+        }
 
         return commentPage;
     }
@@ -72,9 +80,9 @@ public class CommentService {
     public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
         comment.updateComment(commentRequestDto);
     }
@@ -83,14 +91,14 @@ public class CommentService {
     public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
 
         if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(),user.getPassword())) {
-            throw new PasswordMismatchException("The password you entered does not match.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         commentRepository.delete(comment);
 

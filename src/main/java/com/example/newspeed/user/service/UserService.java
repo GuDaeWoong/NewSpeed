@@ -4,6 +4,7 @@ package com.example.newspeed.user.service;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.dto.FindUserResponseDto;
+import com.example.newspeed.user.dto.FindUserWithFollowResponseDto;
 import com.example.newspeed.user.dto.UpdateProfileResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
@@ -24,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
     private final FollowService followService;
+//    private final PostService postService;
 
     // 유저 생성 (회원가입)
     @Transactional
@@ -40,10 +42,16 @@ public class UserService {
     public FindUserResponseDto findByIdUser(Long userId) {
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
+        // 팔로우 수 카운팅
         long followCount = followService.getFollowCount(userId);
+
+        // 팔로워(팔로우 받은) 수 카운팅
         long followedCount = followService.getFollowedCount(userId);
 
-        return FindUserResponseDto.toDto(findUser, followCount, followedCount);
+        // 유저가 작성한 게시글 수 카운팅
+        Long postCount = userRepository.countPostsByUserId(userId);
+
+        return FindUserResponseDto.toDto(findUser, followCount, followedCount, postCount);
     }
 
 
@@ -52,9 +60,10 @@ public class UserService {
         return user.get();
     }
 
+    // 유저 조회
     public List<FindUserResponseDto> findAllUsersPaged(int page, int size) {
 
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page-1, size);
         Page<User> userPage = userRepository.findAll(pageable);
 
         List<FindUserResponseDto> responseDtos = new ArrayList<>();
@@ -62,7 +71,26 @@ public class UserService {
         for (User user : userPage) {
             long followCount = followService.getFollowCount(user.getId());
             long followedCount = followService.getFollowedCount(user.getId());
-            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount));
+            Long postCount = userRepository.countPostsByUserId(user.getId());
+
+
+            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount, postCount));
+        }
+
+        return responseDtos;
+    }
+
+    // 유저 전체 조회 + 팔로우 여부 체크
+    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page-1, size);
+        Page<User> userPage = userRepository.findAllByIdNot(userId, pageable);
+
+        List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
+
+        for (User user : userPage) {
+            boolean isFollow = followService.isFollow(userId, user.getId());
+            responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
         }
 
         return responseDtos;
