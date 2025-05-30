@@ -1,4 +1,4 @@
-package com.example.newspeed.post.dto;
+package com.example.newspeed.global.dto;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Getter
-public class PagePostResponseDto<T> {
+public class PageResponseDto<T> {
 
     /**
      * content: 페이지에 포함된 데이터 List
@@ -23,7 +23,7 @@ public class PagePostResponseDto<T> {
     private final int totalPages;
     private final boolean last;
 
-    public PagePostResponseDto(Page<T> page) {
+    public PageResponseDto(Page<T> page) {
         this.content = page.getContent();
         this.page = page.getNumber()+1; // (UI 관점) 사용자 측은 1-based index 로 보이도록 처리
         this.size = page.getSize();

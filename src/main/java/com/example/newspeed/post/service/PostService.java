@@ -3,6 +3,7 @@ package com.example.newspeed.post.service;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 
+import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.entity.Post;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -127,7 +127,7 @@ public class PostService {
         return responseDto;
     }
 
-    public PagePostResponseDto<FindAllPostResponseDto> findPostsByPeriod(
+    public PageResponseDto<FindAllPostResponseDto> findPostsByPeriod(
             LocalDate startDate, LocalDate endDate,
             int page, int size)
     {
@@ -140,7 +140,7 @@ public class PostService {
         // 게시글 조회 -> 페이징 처리
         Page<Post> postPage = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end, pageable);
 
-        return new PagePostResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
+        return new PageResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
     }
 
 
