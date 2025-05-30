@@ -1,10 +1,7 @@
 package com.example.newspeed.post.service;
 
 import com.example.newspeed.global.common.PasswordManager;
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
-import com.example.newspeed.post.dto.FindOnePostResponseDto;
-import com.example.newspeed.post.dto.PostResponseDto;
-import com.example.newspeed.post.dto.UpdatePostResponseDto;
+import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.entity.Post;
 import com.example.newspeed.post.repository.PostRepository;
 import com.example.newspeed.user.entity.User;
@@ -102,13 +99,20 @@ public class PostService {
         return responseDto;
     }
 
-    public List<FindAllPostResponseDto> findPostsByPeriod(LocalDate startDate, LocalDate endDate) {
+    public PagePostResponseDto<FindAllPostResponseDto> findPostsByPeriod(
+            LocalDate startDate, LocalDate endDate,
+            int page, int size)
+    {
         LocalDateTime start = startDate.atStartOfDay(); // 해당일 00:00:00
         LocalDateTime end = endDate.atTime(LocalTime.MAX); // 해당일 23:59:59까지 포함
 
-        List<Post> posts = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end);
+        // Pageable 객체 생성 -> 페이지 번호, 크기, 정렬 설정
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("modifiedAt")));
 
-        return posts.stream().map(FindAllPostResponseDto::toPostDto).toList();
+        // 게시글 조회 -> 페이징 처리
+        Page<Post> postPage = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end, pageable);
+
+        return new PagePostResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
     }
 
 
