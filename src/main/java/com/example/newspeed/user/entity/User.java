@@ -37,7 +37,10 @@ public class User extends BaseEntity {
     private List<Token> tokens = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<Follow> follows = new ArrayList<>();
+    private List<Follow> following = new ArrayList<>();
+
+    @OneToMany(mappedBy = "follow", cascade = CascadeType.REMOVE)
+    private List<Follow> followers = new ArrayList<>();
 
     // 유저와 관련된 post 들을 한 번에 조회를 위함 -> User -> Post 1:N 관계 설정
     @OneToMany(mappedBy = "user",  cascade = CascadeType.REMOVE)
