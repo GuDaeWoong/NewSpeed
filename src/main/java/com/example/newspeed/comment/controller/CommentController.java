@@ -30,7 +30,7 @@ public class CommentController {
     @PostMapping("/{postId}")
     public ResponseEntity<CommentResponseDto> saveComment(
             @PathVariable Long postId,
-            @RequestBody CommentRequestDto requestDto
+            @Valid @RequestBody CommentRequestDto requestDto
     ) {
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
@@ -62,7 +62,7 @@ public class CommentController {
     // 댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId,
-                                              @RequestBody DeleteCommentDto deleteDto
+                                              @Valid @RequestBody DeleteCommentDto deleteDto
     ) {
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
         commentService.deleteComment(commentId, deleteDto, currentUserId);

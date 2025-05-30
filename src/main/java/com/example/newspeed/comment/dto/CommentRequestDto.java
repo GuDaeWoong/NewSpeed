@@ -1,12 +1,15 @@
 package com.example.newspeed.comment.dto;
 
-import com.example.newspeed.comment.entity.Comment;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public class CommentRequestDto {
+
+    @NotBlank
     private String contents;
 
 }
