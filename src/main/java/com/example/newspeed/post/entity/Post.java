@@ -1,11 +1,15 @@
 package com.example.newspeed.post.entity;
 
+import com.example.newspeed.comment.entity.Comment;
+import com.example.newspeed.global.entity.BaseEntity;
 import com.example.newspeed.post.dto.PostTitleOfUserDto;
 import com.example.newspeed.user.entity.User;
-import com.example.newspeed.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,6 +36,12 @@ public class Post extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<PostLikes> postLikes = new ArrayList<>();
 
     public Post() {
     }
