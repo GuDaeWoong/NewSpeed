@@ -51,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
+    //화이트 리스트 판별
     private boolean isWhiteList(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if(!whiteListManager.isOnlyLogoutUris(isLoggedIn, request, response)) return false;
         if(!whiteListManager.isPublicUris(isLoggedIn, request, response)) return false;

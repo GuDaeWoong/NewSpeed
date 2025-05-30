@@ -1,7 +1,9 @@
 package com.example.newspeed.user.service;
 
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.JwtTokenProvider;
 import com.example.newspeed.global.common.PasswordManager;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.dto.LoginRequestDto;
 import com.example.newspeed.user.dto.TokenResponseDto;
 import com.example.newspeed.user.entity.Token;
@@ -40,23 +42,19 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
         tokenRepository.save(new Token(user, refreshToken));
+
         return new TokenResponseDto(accessToken, refreshToken);
     }
 
     public String reissueAccessToken(HttpServletRequest request) {
 
-
-
         //쿠키에서 refresh token 꺼내기
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(()-> new CustomException(ErrorCode.REQUIRED_LOGIN));
 
-
-        //DB 에 저장된 토큰과 일치하는지 확인
-        Optional<Token> tokenEntity = tokenRepository.findByRefreshToken(refreshToken);
-        if (tokenEntity.isEmpty()) {
-            return null;
-        }
+        //DB 에 저장된 토큰과 일치하는지 확인 -> 없으면 예외
+        Token tokenEntity = tokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(()-> new CustomException(ErrorCode.REQUIRED_LOGIN));
 
         //refresh token 에서 userId 추출 → 새로운 access token 발급
         Long userId = jwtTokenProvider.getUserIdByToken(refreshToken);
@@ -81,11 +79,14 @@ public class AuthService {
     }
 
     //로그아웃 기능
-    public boolean logout(HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
 
         //Header 에서 Token 가져오기
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
         String refreshToken = jwtTokenProvider.extractRefreshTokenFromCookie(request).orElse(null);
+
+        //accessToken 블랙리스트 추가 -> 이미 추가되어 있거나 null 일 경우 예외 처리(비정상 접근)
+        if(!isAccessTokenBlackListOrSave(accessToken)) throw new CustomException(ErrorCode.INVALID_ACCESS);
 
         //토큰 있을 시 실행
         if(refreshToken != null){
@@ -97,7 +98,5 @@ public class AuthService {
             jwtTokenProvider.deleteRefreshTokenCookie(response);
         }
 
-        //accessToken 블랙리스트 추가 -> 이미 추가되어 있거나 null 일 경우 false 반환(비정상 접근)
-        return isAccessTokenBlackListOrSave(accessToken);
     }
 }

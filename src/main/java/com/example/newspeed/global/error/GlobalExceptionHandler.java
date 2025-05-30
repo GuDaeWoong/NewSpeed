@@ -35,6 +35,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(responseBody.toString(), HttpStatus.BAD_REQUEST);
     }
 
+    //커스텀 예외 처리기
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ExceptionDto> handleCustomException(CustomException e){
+        ExceptionDto exceptionDto = new ExceptionDto(e.getStatus(), e.getMessage());
+        return ResponseEntity.status(e.getStatus()).body(exceptionDto);
+    }
+
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<String> handleCommentNotFoundException(CommentNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);

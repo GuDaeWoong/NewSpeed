@@ -1,6 +1,8 @@
 package com.example.newspeed.user.controller;
 
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.JwtTokenProvider;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.dto.followDto;
 import com.example.newspeed.user.service.FollowService;
 import jakarta.validation.constraints.Min;
@@ -28,8 +30,8 @@ public class FollowController {
 
         Long userId = jwtTokenProvider.getUserIdFromSecurity();
 
-        //같은 유저는 팔로우 할 수 없음
-        if(Objects.equals(userId, id)) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        //같은 유저는 팔로우 할 수 없음 -> 예외 처리
+        if(Objects.equals(userId, id)) throw new CustomException(ErrorCode.CANNOT_FOLLOW_SELF);
 
         followService.follow(new followDto(userId, id));
 
