@@ -1,8 +1,8 @@
 package com.example.newspeed.post.controller;
-import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import com.example.newspeed.user.dto.CustomUserDetails;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -1,8 +1,8 @@
 package com.example.newspeed.user.controller;
 
 import com.example.newspeed.auth.jwt.JwtTokenProvider;
+import com.example.newspeed.auth.service.AuthService;
 import com.example.newspeed.user.dto.*;
-import com.example.newspeed.user.service.AuthService;
 import com.example.newspeed.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -115,11 +115,12 @@ public class UserController {
 
 
     @GetMapping("/with-follow")
-    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(@RequestParam(defaultValue = "1") int page,
+    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(
+            @AuthenticationPrincipal CustomUserDetails userDetails,@RequestParam(defaultValue = "1") int page,
                                                                                    @RequestParam(defaultValue = "10") int size) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
+        Long currentUserId = userDetails.getId();
 
         List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, page, size);
 
