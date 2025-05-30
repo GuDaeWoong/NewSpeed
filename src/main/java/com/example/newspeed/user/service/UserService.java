@@ -4,6 +4,7 @@ package com.example.newspeed.user.service;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.dto.FindUserResponseDto;
+import com.example.newspeed.user.dto.FindUserWithFollowResponseDto;
 import com.example.newspeed.user.dto.UpdateProfileResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
@@ -52,6 +53,7 @@ public class UserService {
         return user.get();
     }
 
+    // 유저 조회
     public List<FindUserResponseDto> findAllUsersPaged(int page, int size) {
 
         Pageable pageable = PageRequest.of(page-1, size);
@@ -63,6 +65,21 @@ public class UserService {
             long followCount = followService.getFollowCount(user.getId());
             long followedCount = followService.getFollowedCount(user.getId());
             responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount));
+        }
+
+        return responseDtos;
+    }
+
+    // 유저 전체 조회 + 팔로우 여부 체크
+    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId) {
+
+        List<User> userlist = userRepository.findAllByIdNot(userId);
+
+        List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
+
+        for (User user : userlist) {
+            boolean isFollow = followService.isFollow(userId, user.getId());
+            responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
         }
 
         return responseDtos;
