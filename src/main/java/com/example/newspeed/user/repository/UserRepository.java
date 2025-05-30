@@ -1,6 +1,7 @@
 package com.example.newspeed.user.repository;
 
 import com.example.newspeed.user.entity.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,5 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + userId));
     }
 
-    List<User> findAllByIdNot(Long userId);
+    List<User> findAllByIdNot(Long userId, Pageable pageable);
 }

@@ -113,12 +113,13 @@ public class UserController {
     }
 
     @GetMapping("/with-follow")
-    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow() {
+    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(@RequestParam(defaultValue = "1") int page,
+                                                                                   @RequestParam(defaultValue = "10") int size) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = jwtTokenProvider.getUserIdFromSecurity();
 
-        List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId);
+        List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, page, size);
 
         return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
     }

@@ -71,13 +71,14 @@ public class UserService {
     }
 
     // 유저 전체 조회 + 팔로우 여부 체크
-    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId) {
+    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, int page, int size) {
 
-        List<User> userlist = userRepository.findAllByIdNot(userId);
+        Pageable pageable = PageRequest.of(page-1, size);
+        List<User> userPage = userRepository.findAllByIdNot(userId, pageable);
 
         List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
 
-        for (User user : userlist) {
+        for (User user : userPage) {
             boolean isFollow = followService.isFollow(userId, user.getId());
             responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
         }
