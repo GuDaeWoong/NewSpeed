@@ -6,7 +6,9 @@ import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.SecurityConfig;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.global.error.PasswordMismatchException;
 import com.example.newspeed.global.error.UnauthorizedAccessException;
 import com.example.newspeed.post.entity.Post;
@@ -16,17 +18,10 @@ import com.example.newspeed.user.service.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -63,11 +58,19 @@ public class CommentService {
         );
     }
 
-    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, int page, int size) {
+    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, Pageable pageable) {
+        // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
 
-        Pageable pageable = PageRequest.of(page-1, size, Sort.by("modifiedAt").descending());
-
-        Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, pageable);
+        Pageable adjustedPageable = PageRequest.of(pageNumber, pageable.getPageSize(), pageable.getSort());
+        Page<CommentWithLikesDto> commentPage = commentRepository.findCommentsWithLikeCountByPostId(postId, adjustedPageable);
+        if (commentPage.isEmpty() && pageNumber >= commentPage.getTotalPages()) {
+            throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
+        }
 
         return commentPage;
     }
@@ -76,9 +79,9 @@ public class CommentService {
     public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
         comment.updateComment(commentRequestDto);
     }
@@ -87,14 +90,14 @@ public class CommentService {
     public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
-                .orElseThrow(() -> new NoSuchElementException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!user.getId().equals(comment.getUser().getId())) {
-            throw new UnauthorizedAccessException("You are not authorized to edit this comment.");
+            throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
 
         if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(),user.getPassword())) {
-            throw new PasswordMismatchException("The password you entered does not match.");
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         commentRepository.delete(comment);
 

@@ -7,16 +7,15 @@ import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.comment.dto.DeleteCommentDto;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.common.JwtTokenProvider;
-import com.example.newspeed.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -41,11 +40,9 @@ public class CommentController {
     @GetMapping("/{postId}")
     public ResponseEntity<Page<CommentWithLikesDto>> findAllCommentByPostId(
             @PathVariable Long postId,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
+            @PageableDefault(page = 1, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, page, size);
-
+        Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, pageable);
         return new ResponseEntity<>(commentPage, HttpStatus.OK);
     }
 

@@ -112,6 +112,7 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
+
     @GetMapping("/with-follow")
     public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(@RequestParam(defaultValue = "1") int page,
                                                                                    @RequestParam(defaultValue = "10") int size) {
@@ -132,6 +133,7 @@ public class UserController {
          * @param response
          * @return -
          */
+
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@Valid @RequestBody DeleteUserRequestDto requestDto,
                                            HttpServletRequest request,

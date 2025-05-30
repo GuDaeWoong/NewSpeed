@@ -25,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
     private final FollowService followService;
+//    private final PostService postService;
 
     // 유저 생성 (회원가입)
     @Transactional
@@ -41,10 +42,16 @@ public class UserService {
     public FindUserResponseDto findByIdUser(Long userId) {
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
+        // 팔로우 수 카운팅
         long followCount = followService.getFollowCount(userId);
+
+        // 팔로워(팔로우 받은) 수 카운팅
         long followedCount = followService.getFollowedCount(userId);
 
-        return FindUserResponseDto.toDto(findUser, followCount, followedCount);
+        // 유저가 작성한 게시글 수 카운팅
+        Long postCount = userRepository.countPostsByUserId(userId);
+
+        return FindUserResponseDto.toDto(findUser, followCount, followedCount, postCount);
     }
 
 
@@ -64,7 +71,10 @@ public class UserService {
         for (User user : userPage) {
             long followCount = followService.getFollowCount(user.getId());
             long followedCount = followService.getFollowedCount(user.getId());
-            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount));
+            Long postCount = userRepository.countPostsByUserId(user.getId());
+
+
+            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount, postCount));
         }
 
         return responseDtos;

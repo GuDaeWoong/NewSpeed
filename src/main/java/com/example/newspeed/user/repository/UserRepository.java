@@ -4,6 +4,7 @@ import com.example.newspeed.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,5 +20,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
         return findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + userId));
     }
 
+
     Page<User> findAllByIdNot(Long userId, Pageable pageable);
+
+    // 유저가 작성한 게시글 수 카운팅
+    @Query("SELECT count(p) " +
+            "FROM User u " +
+            "JOIN Post p ON u.id = p.user.id " +
+            "WHERE u.id = ?1")
+    Long countPostsByUserId(Long userId);
+
 }

@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -17,8 +16,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    // 게시글 조회 -> 기간 검색 기능 페이징 처리
+    Page<Post> findAllByCreatedAtBetweenOrderByModifiedAtDesc(LocalDateTime start, LocalDateTime end, Pageable pageable);
 
-    List<Post> findAllByCreatedAtBetweenOrderByModifiedAtDesc(LocalDateTime start, LocalDateTime end);
     // 게시글 전체 조회 기능 페이징처리
     Page<Post> findAll(Pageable pageable);
 
