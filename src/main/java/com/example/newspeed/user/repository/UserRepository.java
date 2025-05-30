@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
@@ -30,4 +32,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "WHERE u.id = ?1")
     Long countPostsByUserId(Long userId);
 
+    // 유저, 유저당 포스트 수 카운트
+    @Query("SELECT u.id, COUNT(p) FROM User u LEFT JOIN u.posts p GROUP BY u.id")
+    List<Object[]> countPostsGroupedByUser();
 }

@@ -15,9 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -66,13 +64,17 @@ public class UserService {
         Pageable pageable = PageRequest.of(page-1, size);
         Page<User> userPage = userRepository.findAll(pageable);
 
+        // 전체 유저 당 팔로우/팔로워/게시글 수 미리 조회
+        Map<Long, Long> followCounts = followService.getFollowCountMap();
+        Map<Long, Long> followedCounts = followService.getFollowedCountMap();
+        Map<Long, Long> postCounts = getFollowedCountMap();
+
         List<FindUserResponseDto> responseDtos = new ArrayList<>();
 
         for (User user : userPage) {
-            long followCount = followService.getFollowCount(user.getId());
-            long followedCount = followService.getFollowedCount(user.getId());
-            Long postCount = userRepository.countPostsByUserId(user.getId());
-
+            long followCount = followCounts.getOrDefault(user.getId(), 0L);
+            long followedCount = followedCounts.getOrDefault(user.getId(), 0L);
+            long postCount = postCounts.getOrDefault(user.getId(), 0L);
 
             responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount, postCount));
         }
@@ -83,13 +85,16 @@ public class UserService {
     // 유저 전체 조회 + 팔로우 여부 체크
     public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, int page, int size) {
 
+        // 본인을 제외하고 조회
         Pageable pageable = PageRequest.of(page-1, size);
         Page<User> userPage = userRepository.findAllByIdNot(userId, pageable);
 
-        List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
+        // 로그인한 유저가 팔로우 중인 유저들의 ID를 조회
+        List<Long> followingIdList = followService.findFollowIdsByUserId(userId);
 
+        List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
         for (User user : userPage) {
-            boolean isFollow = followService.isFollow(userId, user.getId());
+            boolean isFollow = followingIdList.contains(user.getId());
             responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
         }
 
@@ -139,5 +144,17 @@ public class UserService {
         passwordManager.validatePasswordMatchOrThrow(password, findUser.getPassword());
 
         userRepository.deleteById(userId);
+    }
+
+    public Map<Long, Long> getFollowedCountMap() {
+        List<Object[]> countPostList = userRepository.countPostsGroupedByUser();
+
+        Map<Long, Long> map = new HashMap<>();
+        for (Object[] row : countPostList) {
+            Long userId = (Long) row[0];
+            Long count = (Long) row[1];
+            map.put(userId, count);
+        }
+        return map;
     }
 }

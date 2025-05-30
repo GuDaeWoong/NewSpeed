@@ -8,6 +8,9 @@ import com.example.newspeed.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -53,4 +56,32 @@ public class FollowService {
         return followRepository.existsByUserIdAndFollowId(userId, followId);
     }
 
+    // 팔로우하고 있는 유저id 리스트를 반환하는 메서드
+    public List<Long> findFollowIdsByUserId(Long userId) {
+        return followRepository.findFollowIdsByUserId(userId);
+    }
+
+    public Map<Long, Long> getFollowCountMap() {
+        List<Object[]> countFollowList = followRepository.countAllGroupedByUserId();
+
+        Map<Long, Long> map = new HashMap<>();
+        for (Object[] row : countFollowList) {
+            Long userId = (Long) row[0];
+            Long count = (Long) row[1];
+            map.put(userId, count);
+        }
+        return map;
+    }
+
+    public Map<Long, Long> getFollowedCountMap() {
+        List<Object[]> countFollowedList = followRepository.countAllGroupedByFollowId();
+
+        Map<Long, Long> map = new HashMap<>();
+        for (Object[] row : countFollowedList) {
+            Long userId = (Long) row[0];
+            Long count = (Long) row[1];
+            map.put(userId, count);
+        }
+        return map;
+    }
 }

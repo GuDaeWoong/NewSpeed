@@ -48,43 +48,6 @@ public class UserController {
     }
 
     /**
-     * 로그인 유저 프로필 수정
-     *
-     * @param requestDto 닉네임, 프로필이미지url, 패스워드
-     * @return 로그인 유저 id + 변경 후 닉네임, 프로필이미지url
-     */
-    @PatchMapping("/profile")
-    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateProfileRequestDto requestDto) {
-
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = userDetails.getId();
-
-        UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
-                                                                         requestDto.getNickname(),
-                                                                         requestDto.getUserUrl(),
-                                                                         requestDto.getPassword());
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
-
-    /**
-     * 로그인 유저 비밀번호 수정
-     *
-     * @param requestDto 닉네임, 프로필이미지url, 패스워드
-     * @return -
-     */
-    @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
-
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = userDetails.getId();
-
-        userService.updatePassword(currentUserId,
-                                   requestDto.getCurrentPassword(),
-                                   requestDto.getNewPassword());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    /**
      * 로그인 유저 정보 조회 (마이페이지 조회)
      * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
      */
@@ -113,7 +76,14 @@ public class UserController {
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
 
-
+    /**
+     * 유저 전체 조회 + 팔로우 여부 체크
+     *
+     * @param userDetails
+     * @param page
+     * @param size
+     * @return
+     */
     @GetMapping("/with-follow")
     public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(
             @AuthenticationPrincipal CustomUserDetails userDetails,@RequestParam(defaultValue = "1") int page,
@@ -125,6 +95,43 @@ public class UserController {
         List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, page, size);
 
         return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
+    }
+
+    /**
+     * 로그인 유저 프로필 수정
+     *
+     * @param requestDto 닉네임, 프로필이미지url, 패스워드
+     * @return 로그인 유저 id + 변경 후 닉네임, 프로필이미지url
+     */
+    @PatchMapping("/profile")
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateProfileRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = userDetails.getId();
+
+        UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
+                requestDto.getNickname(),
+                requestDto.getUserUrl(),
+                requestDto.getPassword());
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 로그인 유저 비밀번호 수정
+     *
+     * @param requestDto 닉네임, 프로필이미지url, 패스워드
+     * @return -
+     */
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = userDetails.getId();
+
+        userService.updatePassword(currentUserId,
+                requestDto.getCurrentPassword(),
+                requestDto.getNewPassword());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
         /**
