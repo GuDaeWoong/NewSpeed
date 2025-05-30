@@ -56,8 +56,17 @@ public class PostController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<List<FindAllPostResponseDto>> searchPostByPeriod(@RequestBody SearchPeriodRequestDto requestDto) {
-        List<FindAllPostResponseDto> searchPost = postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate());
+    public ResponseEntity<PagePostResponseDto<FindAllPostResponseDto>> searchPostByPeriod(
+            @RequestBody SearchPeriodRequestDto requestDto,
+            @RequestParam (defaultValue = "1") int page,
+            @RequestParam (defaultValue = "10") int size
+    ) {
+
+        // Page -> 0-based 로 변환
+        page -= 1;
+
+        PagePostResponseDto<FindAllPostResponseDto> searchPost =
+                postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate(), page, size);
 
         return new ResponseEntity<>(searchPost, HttpStatus.OK);
     }
