@@ -13,7 +13,7 @@ import java.util.Date;
 
 //토큰 생성, 추출, 검증 담당
 @Component
-public class JwtTokenService {
+public class JwtTokenUtils {
     private Key key;
 
     // HS256 알고리즘용 키 자동 생성
@@ -52,7 +52,7 @@ public class JwtTokenService {
 
     //토큰 유효성 검증(key, 만료, 유효 시작, 형식)
     //보안상 예외 처리는 최소화
-    public boolean validateToken(String token) {
+    public boolean isValidToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)

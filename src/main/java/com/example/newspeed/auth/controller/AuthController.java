@@ -2,8 +2,6 @@ package com.example.newspeed.auth.controller;
 
 import com.example.newspeed.auth.jwt.*;
 import com.example.newspeed.auth.dto.AccessTokenResponseDto;
-import com.example.newspeed.auth.jwt.JwtTokenService;
-import com.example.newspeed.user.dto.CustomUserDetails;
 import com.example.newspeed.user.dto.LoginRequestDto;
 import com.example.newspeed.auth.dto.TokenResponseDto;
 import com.example.newspeed.auth.service.AuthService;
@@ -14,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -24,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final TokenCookieManager tokenCookieManager;
-    private final TokenExtractor tokenExtractor;
-    private final JwtTokenService jwtTokenService;
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final TokenCookieUtils tokenCookieUtils;
 
     @PostMapping("/login")
     public ResponseEntity<AccessTokenResponseDto> login(@Valid @RequestBody LoginRequestDto requestDto,
@@ -37,7 +31,7 @@ public class AuthController {
         TokenResponseDto token = authService.login(requestDto);
 
         // refresh 토큰을 쿠키에 추가
-        tokenCookieManager.addRefreshTokenToCookie(token.getRefreshToken(), response);
+        tokenCookieUtils.addRefreshTokenToCookie(token.getRefreshToken(), response);
 
         return new ResponseEntity<>(new AccessTokenResponseDto(token.getAccessToken()),HttpStatus.OK);
 
@@ -59,24 +53,5 @@ public class AuthController {
 
         return new ResponseEntity<>(new AccessTokenResponseDto(newAccessToken), HttpStatus.OK);
     }
-
-    //토큰 확인용 테스트 코드 > 삭제예정
-    @PostMapping("/tokentest")
-    public ResponseEntity<TokenResponseDto> loginTest(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                      HttpServletRequest request){
-
-        String accessToken = tokenExtractor.extractAccessTokenFromHeader(request).orElse(null);
-        if(!jwtTokenService.validateToken(accessToken)) accessToken = "유효기간만료";
-        String refreshToken = tokenExtractor.extractRefreshTokenFromCookie(request).orElse(null);
-
-        Long id = jwtAuthenticationProvider.getUserIdFromSecurity();
-        Long userId = userDetails.getId();
-
-
-        new TokenResponseDto(accessToken, refreshToken);
-
-        return new ResponseEntity<>(new TokenResponseDto(accessToken, refreshToken), HttpStatus.OK);
-    }
-
 
 }

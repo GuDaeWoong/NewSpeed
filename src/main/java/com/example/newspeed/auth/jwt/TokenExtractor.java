@@ -11,7 +11,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TokenExtractor {
 
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // Header 에서 access token 값을 가져온다.
     public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
@@ -34,7 +34,7 @@ public class TokenExtractor {
         for (Cookie cookie : cookies) {
             if ("refresh_token".equals(cookie.getName())) {
                 String refreshToken = cookie.getValue();
-                if(jwtTokenService.validateToken(refreshToken)){
+                if(jwtTokenProvider.validateToken(refreshToken)){
                     return Optional.ofNullable(cookie.getValue());
                 }
             }

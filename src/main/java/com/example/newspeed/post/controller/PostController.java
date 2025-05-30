@@ -19,11 +19,9 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public PostController(PostService postService, JwtTokenProvider jwtTokenProvider) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
 

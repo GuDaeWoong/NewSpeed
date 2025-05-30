@@ -2,15 +2,13 @@ package com.example.newspeed.auth.jwt;
 
 import com.example.newspeed.auth.service.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    private final JwtTokenService jwtTokenService;
-    private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private final JwtTokenUtils jwtTokenUtils;
     private final TokenBlacklistService tokenBlacklistService;
 
     //토큰 유지 시간 (1시간)
@@ -18,17 +16,20 @@ public class JwtTokenProvider {
 
     //Access Token : 로그인 후 API 호출에 사용
     public String createAccessToken(Long userId) {
-        return jwtTokenService.createToken(userId, tokenValidityInMilliseconds/4); // 15분
+        return jwtTokenUtils.createToken(userId, tokenValidityInMilliseconds/4); // 15분
     }
 
     //Refresh Token : Access Token 이 만료됐을 때 재발급 요청에 사용
     public String createRefreshToken(Long userId) {
-        return jwtTokenService.createToken(userId, tokenValidityInMilliseconds * 168); // 일주일
+        return jwtTokenUtils.createToken(userId, tokenValidityInMilliseconds * 168); // 일주일
     }
 
-    //Authentication 생성
-    public Authentication getAuthentication(String token) {
-        return jwtAuthenticationProvider.getAuthentication(token);
+    public Long extractUserId(String token) {
+        return jwtTokenUtils.getUserIdByToken(token);
+    }
+
+    public boolean validateToken(String token) {
+        return jwtTokenUtils.isValidToken(token);
     }
     
     //로그인 상태 확인
@@ -37,6 +38,5 @@ public class JwtTokenProvider {
         if(accessToken == null) return false;
         return !tokenBlacklistService.isTokenInBlackList(accessToken);
     }
-
 
 }

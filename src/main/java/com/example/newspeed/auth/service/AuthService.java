@@ -1,6 +1,6 @@
 package com.example.newspeed.auth.service;
 
-import com.example.newspeed.auth.jwt.TokenCookieManager;
+import com.example.newspeed.auth.jwt.TokenCookieUtils;
 import com.example.newspeed.auth.jwt.TokenExtractor;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
@@ -24,7 +24,7 @@ public class AuthService {
     private final PasswordManager passwordManager;
     private final TokenBlacklistService tokenBlacklistService;
     private final TokenExtractor tokenExtractor;
-    private final TokenCookieManager tokenCookieManager;
+    private final TokenCookieUtils tokenCookieUtils;
     private final TokenService tokenService;
 
     //로그인
@@ -66,7 +66,7 @@ public class AuthService {
             //DB 에서 refreshToken 삭제
             tokenService.deleteRefreshTokenDB(refreshToken);
             //쿠키에서 refreshToken 리셋
-            tokenCookieManager.deleteRefreshTokenCookie(response);
+            tokenCookieUtils.deleteRefreshTokenCookie(response);
         }
 
     }

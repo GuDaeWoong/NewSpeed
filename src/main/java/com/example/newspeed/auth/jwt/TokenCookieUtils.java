@@ -9,7 +9,7 @@ import java.time.Duration;
 
 //쿠키 처리
 @Component
-public class TokenCookieManager {
+public class TokenCookieUtils {
 
     //refresh token 쿠키 저장
     public void addRefreshTokenToCookie(String refreshToken, HttpServletResponse response){

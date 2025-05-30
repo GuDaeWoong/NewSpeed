@@ -20,12 +20,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationProvider {
     private final UserRepository userRepository;
-    private final JwtTokenService jwtTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
     private final FilterException filterException;
 
     //토큰으로부터 유저 정보를 받기
-    public Authentication getAuthentication(String token) {
-        Long userId = jwtTokenService.getUserIdByToken(token);
+    private Authentication getAuthentication(String token) {
+        Long userId = jwtTokenProvider.extractUserId(token);
 
         // DB 에서 사용자 정보 조회
         User user = userRepository.findById(userId)
@@ -72,7 +72,7 @@ public class JwtAuthenticationProvider {
 
     //토큰 유효성 검증 Or 예외 처리 (Access token)
     private void validateTokenToSaveToken(String accessToken, HttpServletResponse response) throws IOException{
-        if(jwtTokenService.validateToken(accessToken)){
+        if(jwtTokenProvider.validateToken(accessToken)){
             //인증 정보 저장
             saveAuthenticationFromToken(accessToken);
         }else{
