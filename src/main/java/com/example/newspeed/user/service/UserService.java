@@ -74,7 +74,7 @@ public class UserService {
     public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page-1, size);
-        List<User> userPage = userRepository.findAllByIdNot(userId, pageable);
+        Page<User> userPage = userRepository.findAllByIdNot(userId, pageable);
 
         List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
 
