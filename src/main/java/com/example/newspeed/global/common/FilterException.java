@@ -13,8 +13,7 @@ public class FilterException {
     //세션에 없을 시 예외 처리. 예외 메세지는 Json 형식으로 반환
     public void writeExceptionResponse(HttpServletResponse httpResponse) throws IOException {
         int status = 400;
-        String location = this.getClass().getSimpleName();
-        String responseMessage = String.format("{\"status\": %d, \"message\": \"%s\", \"location\": \"%s\"}",status, "잘못된 접근입니다.", location);
+        String responseMessage = String.format("{\"status\": %d, \"message\": \"%s\"}",status, "잘못된 접근입니다.");
 
         httpResponse.setStatus(status);
         httpResponse.setContentType("application/json;charset=UTF-8");

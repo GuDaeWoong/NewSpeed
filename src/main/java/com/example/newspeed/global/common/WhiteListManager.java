@@ -28,43 +28,42 @@ public class WhiteListManager {
             "/api/users/login"
     };
 
-    private static final String[] IGNORE_VALIDATE = {
+    //토큰 유효성 검사 무시하는 URI
+    private static final String[] NO_AUTH_REQUIRED_URIS = {
             "/api/users/reissue",
             "/api/users/logout"
     };
 
-    //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
-    public boolean validateWhitelistAccess(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException {
-        //입력받은 URI
-        String requestURI = request.getRequestURI();
-
-        //GET, POST 등 요청받은 메소드 방식
-        String httpMethod = request.getMethod();
-
-        if (isLoggedIn && isWhitelistedUri(LOGOUT_ONLY_URIS, requestURI)) {
+    //로그아웃 상태에서만 집입가능한 uri
+    public boolean isOnlyLogoutUris(boolean isLoggedIn,HttpServletRequest request,HttpServletResponse httpResponse) throws IOException{
+        if (isLoggedIn && isWhitelistedUri(LOGOUT_ONLY_URIS, request.getRequestURI())) {
             filterException.writeExceptionResponse(httpResponse);
             return false;
         }
+        return true;
+    }
 
+    //로그인 없이 진입가능한 uri
+    public boolean isPublicUris(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse httpResponse) throws IOException{
         //Get 방식의 조회만 필터 제외하고, 다른 방식은(수정,삭제 등) 필터에 걸리도록 수정
         if (!isLoggedIn) {
-            if (requestURI.startsWith("/api/posts/")) {
-                if (!"GET".equalsIgnoreCase(httpMethod)) { //대소문자 구분없이 판단
+            if (request.getMethod().startsWith("/api/posts/")) {
+                if (!"GET".equalsIgnoreCase(request.getRequestURI())) { //대소문자 구분없이 판단
                     filterException.writeExceptionResponse(httpResponse);
                     return false;
                 }
-            } else if (!isWhitelistedUri(PUBLIC_URIS, requestURI)) {
+            } else if (!isWhitelistedUri(PUBLIC_URIS, request.getRequestURI())) {
                 filterException.writeExceptionResponse(httpResponse);
                 return false;
             }
         }
         return true;
     }
+
     
     //유효성 검증 무시 uri
-    public boolean isIgnoreValidate(HttpServletRequest request) {
-        String requestURI = request.getRequestURI(); // 전체 URI 경로 얻기
-        return isWhitelistedUri(IGNORE_VALIDATE, requestURI);
+    public boolean isNoAuthRequiredUris(HttpServletRequest request) {
+        return isWhitelistedUri(NO_AUTH_REQUIRED_URIS, request.getRequestURI());
     }
 
     //화이트 리스트 인지 확인

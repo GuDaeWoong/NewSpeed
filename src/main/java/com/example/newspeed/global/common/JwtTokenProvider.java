@@ -1,7 +1,6 @@
 package com.example.newspeed.global.common;
 
 import com.example.newspeed.user.repository.TokenBlackListRepository;
-import com.example.newspeed.user.service.AuthService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;

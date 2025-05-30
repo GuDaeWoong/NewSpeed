@@ -14,6 +14,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저 정보가 없습니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
     ALREADY_LOGGED_IN(HttpStatus.CONFLICT, "이미 로그인된 사용자입니다."),
+    CANNOT_FOLLOW_SELF(HttpStatus.BAD_REQUEST, "같은 유저는 팔로우 할 수 없습니다."),
 
     // 게시글 관련
     BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다."),
@@ -29,13 +30,13 @@ public enum ErrorCode {
     INVALID_SCHEDULE_OWNER(HttpStatus.BAD_REQUEST, "해당 사용자의 일정이 아닙니다."),
     UNAUTHORIZED_SCHEDULE_ACCESS(HttpStatus.UNAUTHORIZED, "해당 사용자의 일정이 아닙니다."),
 
-    // 요청 오류
+    // 요청 관련
     BAD_REQUEST_CONTENT(HttpStatus.CONFLICT, "해당 내용은 추가할 수 없습니다."),
 
-    //필터 오류
+    // 인증 관련
     REQUIRED_LOGIN(HttpStatus.BAD_REQUEST, "로그인이 필요합니다."),
-    REQUIRED_LOGOUT(HttpStatus.BAD_REQUEST, "로그인 상태에서는 할 수 없습니다.");
-
+    REQUIRED_LOGOUT(HttpStatus.BAD_REQUEST, "로그인 상태에서는 할 수 없습니다."),
+    INVALID_ACCESS(HttpStatus.FORBIDDEN, "잘못된 접근입니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -21,10 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         //토큰 검증 무시 리스트 확인
-        if(whiteListManager.isIgnoreValidate(request)) {
-            filterChain.doFilter(request,response);
-            return;
-        }
+        if(whiteListManager.isNoAuthRequiredUris(request)) {filterChain.doFilter(request,response); return;}
 
         //헤더에서 토큰 생성
         String accessToken = jwtTokenProvider.extractAccessTokenFromHeader(request).orElse(null);
@@ -33,9 +30,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isLoggedIn = jwtTokenProvider.isLoggedIn(accessToken);
 
         //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
-        if(!whiteListManager.validateWhitelistAccess(isLoggedIn, request, response)) return;
+        if(!isWhiteList(isLoggedIn, request, response)) return;
 
-        //refresh token 이 null 일 경우 Security 초기화
+        //로그인 상태라면 access 토큰 security 저장. 로그아웃 상태라면 clear
+        setTokenToSercurityContextOrClear(accessToken, isLoggedIn, response);
+
+        // 다음 필터로 넘김
+        filterChain.doFilter(request,response);
+
+    }
+
+    private void setTokenToSercurityContextOrClear(String accessToken, boolean isLoggedIn, HttpServletResponse response) throws IOException {
+        //accessToken 이 null 일 경우 Security 초기화
         if(!isLoggedIn) {
             SecurityContextHolder.clearContext();
         }
@@ -43,12 +49,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
             validateToken(accessToken,response);
         }
-
-        // 다음 필터로 넘김
-        filterChain.doFilter(request,response);
-
     }
-    
+
+    //화이트 리스트 판별
+    private boolean isWhiteList(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(!whiteListManager.isOnlyLogoutUris(isLoggedIn, request, response)) return false;
+        if(!whiteListManager.isPublicUris(isLoggedIn, request, response)) return false;
+        return true;
+    }
+
 
     //토큰 유효성 검증 Or 예외 처리 (Access token)
     private void validateToken(String accessToken, HttpServletResponse response) throws IOException{
