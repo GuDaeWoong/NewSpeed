@@ -36,20 +36,6 @@ public class JwtAuthenticationProvider {
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
     }
 
-    //Security 에서 userId 생성
-    public Long getUserIdFromSecurity() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || authentication.getPrincipal() == null) {
-            return null;
-        }
-        try {
-            return (Long) authentication.getPrincipal();
-        } catch (ClassCastException e) {
-            return null;
-        }
-    }
-
     //토큰에서 인증 정보 설정
     public void saveAuthenticationFromToken(String accessToken){
         // 토큰으로부터 유저 정보 받기
