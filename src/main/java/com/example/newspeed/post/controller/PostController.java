@@ -4,6 +4,9 @@ import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import com.example.newspeed.user.dto.CustomUserDetails;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,12 +39,11 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FindAllPostResponseDto>> findAllAPI(
-            @RequestParam (defaultValue = "1") int page,
-            @RequestParam (defaultValue = "10") int size
+    public ResponseEntity<PageResponseDto<FindAllPostResponseDto>> findAllAPI(
+            @PageableDefault(page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     )
     {
-        List<FindAllPostResponseDto> allPost = postService.findAllPost(page, size);
+        PageResponseDto<FindAllPostResponseDto> allPost = postService.findAllPost(pageable);
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }
