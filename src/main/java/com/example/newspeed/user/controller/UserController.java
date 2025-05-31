@@ -2,6 +2,7 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.auth.service.AuthService;
+import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.user.dto.*;
 import com.example.newspeed.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,9 +70,9 @@ public class UserController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@PageableDefault(page = 1) Pageable pageable) {
+    public ResponseEntity<PageResponseDto<FindUserResponseDto>> findAllUsers(@PageableDefault(page = 1) Pageable pageable) {
 
-        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(pageable);
+        PageResponseDto<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(pageable);
 
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
@@ -84,13 +85,13 @@ public class UserController {
      * @return
      */
     @GetMapping("/with-follow")
-    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(
+    public ResponseEntity<PageResponseDto<FindUserWithFollowResponseDto>> findUsersWithFollow(
             @AuthenticationPrincipal CustomUserDetails userDetails, @PageableDefault(page = 1) Pageable pageable) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
-        List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, pageable);
+        PageResponseDto<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, pageable);
 
         return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
     }

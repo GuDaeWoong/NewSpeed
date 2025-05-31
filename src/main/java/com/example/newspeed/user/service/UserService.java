@@ -3,6 +3,7 @@ package com.example.newspeed.user.service;
 
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
+import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.dto.FindUserResponseDto;
@@ -13,6 +14,7 @@ import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,7 @@ public class UserService {
     }
 
     // 유저 조회
-    public List<FindUserResponseDto> findAllUsersPaged(Pageable pageable) {
+    public PageResponseDto<FindUserResponseDto> findAllUsersPaged(Pageable pageable) {
 
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
@@ -94,11 +96,13 @@ public class UserService {
             responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount, postCount));
         }
 
-        return responseDtos;
+        // 페이지Dto에 적용하여 반환
+        Page<FindUserResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
+        return new PageResponseDto<>(dtoPage);
     }
 
     // 유저 전체 조회 + 팔로우 여부 체크
-    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, Pageable pageable) {
+    public PageResponseDto<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, Pageable pageable) {
 
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
@@ -126,7 +130,9 @@ public class UserService {
             responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
         }
 
-        return responseDtos;
+        // 페이지Dto에 적용하여 반환
+        Page<FindUserWithFollowResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
+        return new PageResponseDto<>(dtoPage);
     }
 
     // 유저 프로필 수정
