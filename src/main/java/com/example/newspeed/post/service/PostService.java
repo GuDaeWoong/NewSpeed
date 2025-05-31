@@ -1,5 +1,6 @@
 package com.example.newspeed.post.service;
 
+import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 
@@ -87,19 +88,26 @@ public class PostService {
     }
 
     @Transactional
-    public List<FindAllPostResponseDto> findAllPost(int page, int size) {
+    public PageResponseDto<FindAllPostResponseDto> findAllPost(Pageable pageable) {
 
-        // 페이지 번호 1을 -> 0으로 변경하여 파라미터에 1입력 시 0번째 페이지 조회
-        page -= 1;
+        // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
 
-        // 페이지 번호, 크기 지정 및 정렬 (생성 일자 기준으로 내림차순)
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
+        // Pageble객체 생성
+        Pageable postPageble = PageRequest.of(pageNumber , pageable.getPageSize(), pageable.getSort());
         // 레포지토리에서 생성한 게시글 전체 조회 페이징 기능
-        Page<Post> postPage = postRepository.findAll(pageable);
+        Page<Post> postPage = postRepository.findAll(postPageble);
 
-        // 리스트로 반환
-        return postPage.stream().map(FindAllPostResponseDto::toPostDto).toList();
+        if (postPage.isEmpty() && pageNumber >= postPage.getTotalPages()) {
+            throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
+        }
+        
+        // 페이지 반환
+        return new PageResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
 
     }
 
