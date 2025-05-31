@@ -1,7 +1,9 @@
 package com.example.newspeed.user.service;
 
 
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.dto.CreateUserResponseDto;
 import com.example.newspeed.user.dto.FindUserResponseDto;
 import com.example.newspeed.user.dto.FindUserWithFollowResponseDto;
@@ -59,18 +61,31 @@ public class UserService {
     }
 
     // 유저 조회
-    public List<FindUserResponseDto> findAllUsersPaged(int page, int size) {
+    public List<FindUserResponseDto> findAllUsersPaged(Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page-1, size);
-        Page<User> userPage = userRepository.findAll(pageable);
+        // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+
+        // 페이지 조회
+        Pageable adjustedPageable = PageRequest.of(pageNumber, pageable.getPageSize(), pageable.getSort());
+        Page<User> userPage = userRepository.findAll(adjustedPageable);
+
+        // 페이지 수를 넘어가는 요청 시 예외 처리
+        if (userPage.isEmpty() && pageNumber >= userPage.getTotalPages()) {
+            throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
+        }
 
         // 전체 유저 당 팔로우/팔로워/게시글 수 미리 조회
         Map<Long, Long> followCounts = followService.getFollowCountMap();
         Map<Long, Long> followedCounts = followService.getFollowedCountMap();
         Map<Long, Long> postCounts = getFollowedCountMap();
 
+        // 응담 Dto에 맞춰 변환
         List<FindUserResponseDto> responseDtos = new ArrayList<>();
-
         for (User user : userPage) {
             long followCount = followCounts.getOrDefault(user.getId(), 0L);
             long followedCount = followedCounts.getOrDefault(user.getId(), 0L);
@@ -83,15 +98,28 @@ public class UserService {
     }
 
     // 유저 전체 조회 + 팔로우 여부 체크
-    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, int page, int size) {
+    public List<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, Pageable pageable) {
 
-        // 본인을 제외하고 조회
-        Pageable pageable = PageRequest.of(page-1, size);
-        Page<User> userPage = userRepository.findAllByIdNot(userId, pageable);
+        // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+
+        // 페이지 조회
+        Pageable adjustedPageable = PageRequest.of(pageNumber, pageable.getPageSize(), pageable.getSort());
+        Page<User> userPage = userRepository.findAllByIdNot(userId, adjustedPageable);
+
+        // 페이지 수를 넘어가는 요청 시 예외 처리
+        if (userPage.isEmpty() && pageNumber >= userPage.getTotalPages()) {
+            throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
+        }
 
         // 로그인한 유저가 팔로우 중인 유저들의 ID를 조회
         List<Long> followingIdList = followService.findFollowIdsByUserId(userId);
 
+        // 응담 Dto에 맞춰 변환
         List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
         for (User user : userPage) {
             boolean isFollow = followingIdList.contains(user.getId());
