@@ -18,7 +18,7 @@ public class WhiteListManager {
     //Get 방식일때만 로그아웃 허용
     private static final String ONLY_GET_PUBLIC_URI = "/api/posts";
 
-    //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능
+    //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능 > 현재 LOGOUT_ONLY_URIS 겹치므로 사용 X
     private static final String[] PUBLIC_URIS = {
             "/api/users/signup",
             "/api/login"
@@ -40,15 +40,15 @@ public class WhiteListManager {
     //화이트 리스트 판별
     public boolean isWhiteList(boolean isLoggedIn, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if(isLoggedIn){
-            if(isOnlyLogoutUris(request, response)) return true;
+            if(isLogoutOnlyUris(request, response)) return true;
         }
-        if(isPublicUris(request, response)) return true;
+        //if(isPublicUris(request, response)) return true; //isOnlyLogoutUris 겹치는 기능. 추후 사용 고려
         if(isPublicGetUris(request, response)) return true;
         return false;
     }
 
     //로그아웃 상태에서만 집입가능한 uri
-    public boolean isOnlyLogoutUris(HttpServletRequest request,HttpServletResponse response) throws IOException{
+    public boolean isLogoutOnlyUris(HttpServletRequest request, HttpServletResponse response) throws IOException{
         if (isWhitelistedUri(LOGOUT_ONLY_URIS, request.getRequestURI())) {
             filterException.writeExceptionResponse(response);
             return false;
@@ -56,7 +56,7 @@ public class WhiteListManager {
         return true;
     }
 
-    //로그인 없이 진입가능한 uri
+    //로그인 없이 진입가능한 uri -> 추후 사용
     public boolean isPublicUris(HttpServletRequest request, HttpServletResponse response) throws IOException{
         if (!isWhitelistedUri(PUBLIC_URIS, request.getRequestURI())) {
             filterException.writeExceptionResponse(response);

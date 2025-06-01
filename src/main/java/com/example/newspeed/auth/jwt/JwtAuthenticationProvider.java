@@ -2,7 +2,6 @@ package com.example.newspeed.auth.jwt;
 
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.error.CustomException;
-import com.example.newspeed.global.error.FilterException;
 import com.example.newspeed.user.dto.CustomUserDetails;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
@@ -21,7 +20,6 @@ import java.io.IOException;
 public class JwtAuthenticationProvider {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final FilterException filterException;
 
     //토큰으로부터 유저 정보를 받기
     private Authentication getAuthentication(String token) {
@@ -45,25 +43,14 @@ public class JwtAuthenticationProvider {
     }
 
 
-    public void setTokenToSecurityContextOrClear(String accessToken, boolean isLoggedIn, HttpServletResponse response) throws IOException {
-        //accessToken 이 null 일 경우 Security 초기화
+    public void setTokenToSecurityContextOrClear(String accessToken, boolean isLoggedIn) throws IOException {
+        //로그인 상태가 아닐경우 ContextHolder 초기화
         if(!isLoggedIn) {
             SecurityContextHolder.clearContext();
         }
         //토큰 유효성 검증 후 SecurityContext 저장 (Access token)
         else{
-            validateTokenToSaveToken(accessToken,response);
-        }
-    }
-
-    //토큰 유효성 검증 Or 예외 처리 (Access token)
-    private void validateTokenToSaveToken(String accessToken, HttpServletResponse response) throws IOException{
-        if(jwtTokenProvider.validateToken(accessToken)){
-            //인증 정보 저장
             saveAuthenticationFromToken(accessToken);
-        }else{
-            // 토큰 재발급 필요
-            filterException.writeExceptionResponse(response);
         }
     }
 

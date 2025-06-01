@@ -1,5 +1,6 @@
 package com.example.newspeed.auth.service;
 
+import com.example.newspeed.auth.dto.AccessTokenDto;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.global.error.CustomException;
@@ -32,18 +33,6 @@ public class AuthService {
         return tokenService.createAndSaveTokens(user);
     }
 
-    //토큰 재발급
-    public String reissueAccessToken(String refreshToken) {
-
-        //Refresh 토큰으로 userId 생성
-        Long userId = tokenService.getUserIdFromRefreshToken(refreshToken);
-
-        if(userId == null) return null;
-
-        //발급 받은 토큰 리턴
-        return tokenService.reissueAccessToken(userId);
-    }
-
     //로그아웃 기능
     public void logout(TokenDto tokenDto) {
 
@@ -59,4 +48,18 @@ public class AuthService {
         tokenService.deleteRefreshTokenDB(tokenDto.getRefreshToken());
 
     }
+
+    //토큰 재발급
+    public AccessTokenDto reissueAccessToken(String refreshToken) {
+
+        //Refresh 토큰으로 userId 생성
+        Long userId = tokenService.getUserIdFromRefreshToken(refreshToken);
+
+        if(userId == null) return null;
+
+        //발급 받은 토큰 리턴
+        String newAccessToken = tokenService.reissueAccessToken(userId);
+        return new AccessTokenDto(newAccessToken);
+    }
+
 }

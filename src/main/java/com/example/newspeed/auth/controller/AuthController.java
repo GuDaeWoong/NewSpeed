@@ -65,15 +65,15 @@ public class AuthController {
                 .orElseThrow(()-> new CustomException(ErrorCode.REQUIRED_LOGIN));
 
 
-        String newAccessToken = authService.reissueAccessToken(refreshToken);
+        AccessTokenDto newAccessToken = authService.reissueAccessToken(refreshToken);
 
         //DB 에서 refresh 토큰 불일치시 비정상적인 접근으로 판단 refresh 토큰 쿠키에서 리셋
-        if(newAccessToken.isEmpty()) {
+        if(newAccessToken == null) {
             tokenCookieUtils.deleteRefreshTokenCookie(response);
             throw new CustomException(ErrorCode.INVALID_ACCESS);
         }
 
-        return new ResponseEntity<>(new AccessTokenDto(newAccessToken), HttpStatus.OK);
+        return new ResponseEntity<>(newAccessToken, HttpStatus.OK);
     }
 
 }
