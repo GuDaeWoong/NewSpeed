@@ -1,9 +1,6 @@
 package com.example.newspeed.comment.service;
 
-import com.example.newspeed.comment.dto.CommentRequestDto;
-import com.example.newspeed.comment.dto.CommentResponseDto;
-import com.example.newspeed.comment.dto.CommentWithLikesDto;
-import com.example.newspeed.comment.dto.DeleteCommentDto;
+import com.example.newspeed.comment.dto.*;
 import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.repository.CommentRepository;
 import com.example.newspeed.global.Enums.ErrorCode;
@@ -75,7 +72,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void updateCommnet(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
+    public CommentUpdateResponseDto updateComment(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -83,6 +80,11 @@ public class CommentService {
             throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
         comment.updateComment(commentRequestDto);
+        return new CommentUpdateResponseDto(
+                comment.getContents(),
+                comment.getCreatedAt(),
+                comment.getModifiedAt()
+        );
     }
 
     @Transactional

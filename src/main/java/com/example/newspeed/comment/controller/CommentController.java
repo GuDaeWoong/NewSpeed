@@ -1,11 +1,9 @@
 package com.example.newspeed.comment.controller;
 
 
-import com.example.newspeed.comment.dto.CommentRequestDto;
-import com.example.newspeed.comment.dto.CommentResponseDto;
-import com.example.newspeed.comment.dto.CommentWithLikesDto;
-import com.example.newspeed.comment.dto.DeleteCommentDto;
+import com.example.newspeed.comment.dto.*;
 import com.example.newspeed.comment.service.CommentService;
+import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.user.dto.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
@@ -37,23 +35,23 @@ public class CommentController {
 
     // post 선택 하여 모든 댓글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<Page<CommentWithLikesDto>> findAllCommentByPostId(
+    public ResponseEntity<PageResponseDto<CommentWithLikesDto>> findAllCommentByPostId(
             @PathVariable Long postId,
             @PageableDefault(page = 1, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, pageable);
-        return new ResponseEntity<>(commentPage, HttpStatus.OK);
+        return new ResponseEntity<>(new PageResponseDto<>(commentPage), HttpStatus.OK);
     }
 
     // 댓글 업데이트
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Void> updateCommnet(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                              @PathVariable Long commentId,
-                                              @Valid @RequestBody CommentRequestDto commentRequestDto
+    public ResponseEntity<CommentUpdateResponseDto> updateComment(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                  @PathVariable Long commentId,
+                                                                  @Valid @RequestBody CommentRequestDto commentRequestDto
     ) {
         Long currentUserId = userDetails.getId();
-        commentService.updateCommnet(commentId, commentRequestDto, currentUserId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        CommentUpdateResponseDto commentUpdate = commentService.updateComment(commentId, commentRequestDto, currentUserId);
+        return new ResponseEntity<>(commentUpdate, HttpStatus.OK);
     }
 
     // 댓글 삭제
@@ -64,7 +62,7 @@ public class CommentController {
     ) {
         Long currentUserId = userDetails.getId();
         commentService.deleteComment(commentId, deleteDto, currentUserId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
