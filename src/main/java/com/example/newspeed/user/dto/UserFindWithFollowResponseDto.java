@@ -4,7 +4,7 @@ import com.example.newspeed.user.entity.User;
 import lombok.Getter;
 
 @Getter
-public class FindUserWithFollowResponseDto {
+public class UserFindWithFollowResponseDto {
 
     private final Long userId;
 
@@ -16,7 +16,7 @@ public class FindUserWithFollowResponseDto {
 
     private final boolean isFollowing; // 팔로우하고 있는지 여부
 
-    public FindUserWithFollowResponseDto(Long userId, String email, String nickname, String userUrl, boolean isFollowing) {
+    public UserFindWithFollowResponseDto(Long userId, String email, String nickname, String userUrl, boolean isFollowing) {
         this.userId = userId;
         this.email = email;
         this.nickname = nickname;
@@ -24,8 +24,8 @@ public class FindUserWithFollowResponseDto {
         this.isFollowing = isFollowing;
     }
 
-    public static FindUserWithFollowResponseDto toDto (User user, boolean isFollowing) {
-        return new FindUserWithFollowResponseDto(
+    public static UserFindWithFollowResponseDto toDto (User user, boolean isFollowing) {
+        return new UserFindWithFollowResponseDto(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),

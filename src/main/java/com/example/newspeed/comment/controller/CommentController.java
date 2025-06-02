@@ -4,7 +4,7 @@ package com.example.newspeed.comment.controller;
 import com.example.newspeed.comment.dto.*;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.dto.PageResponseDto;
-import com.example.newspeed.user.dto.CustomUserDetails;
+import com.example.newspeed.auth.dto.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +35,11 @@ public class CommentController {
 
     // post 선택 하여 모든 댓글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PageResponseDto<CommentWithLikesDto>> findAllCommentByPostId(
+    public ResponseEntity<PageResponseDto<CommentWithLikesDto>> findAllCommentsByPostId(
             @PathVariable Long postId,
             @PageableDefault(page = 1, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<CommentWithLikesDto> commentPage = commentService.findAllCommentByPostId(postId, pageable);
+        Page<CommentWithLikesDto> commentPage = commentService.findAllCommentsByPostId(postId, pageable);
         return new ResponseEntity<>(new PageResponseDto<>(commentPage), HttpStatus.OK);
     }
 
@@ -58,7 +58,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@AuthenticationPrincipal CustomUserDetails userDetails,
                                               @PathVariable Long commentId,
-                                              @RequestBody DeleteCommentDto deleteDto
+                                              @RequestBody CommentDeleteDto deleteDto
     ) {
         Long currentUserId = userDetails.getId();
         commentService.deleteComment(commentId, deleteDto, currentUserId);

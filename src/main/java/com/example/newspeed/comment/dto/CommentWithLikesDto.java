@@ -1,8 +1,5 @@
 package com.example.newspeed.comment.dto;
 
-import com.example.newspeed.comment.entity.Comment;
-import com.example.newspeed.post.dto.FindAllPostResponseDto;
-import com.example.newspeed.post.entity.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

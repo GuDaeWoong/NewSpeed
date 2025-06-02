@@ -54,7 +54,7 @@ public class CommentService {
         );
     }
 
-    public Page<CommentWithLikesDto> findAllCommentByPostId(Long postId, Pageable pageable) {
+    public Page<CommentWithLikesDto> findAllCommentsByPostId(Long postId, Pageable pageable) {
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
         // 요청 페이지 번호가 음수가 되는 것을 방지
@@ -88,7 +88,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, DeleteCommentDto deleteDto, Long currentUserId) {
+    public void deleteComment(Long commentId, CommentDeleteDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
         Comment comment= commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));

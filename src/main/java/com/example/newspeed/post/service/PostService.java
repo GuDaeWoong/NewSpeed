@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -39,7 +38,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponseDto createPost(Long currentUserId, String title, String contents, String imageUrl) {
+    public PostWithIdResponseDto createPost(Long currentUserId, String title, String contents, String imageUrl) {
 
         User user = userService.findUserById(currentUserId);
 
@@ -67,25 +66,11 @@ public class PostService {
 
         Post savePost = postRepository.save(newPost);
 
-        PostResponseDto responseDto = new PostResponseDto
-                (
-                        savePost.getId(),
-                        savePost.getUser().getId(),
-                        savePost.getTitle(),
-                        savePost.getContents(),
-                        savePost.getImageUrl(),
-                        savePost.getUser().getUserUrl(),
-                        savePost.getPostLikes().size(),
-                        savePost.getComments().size(),
-                        savePost.getCreatedAt(),
-                        savePost.getModifiedAt()
-                );
-
-        return responseDto;
+        return PostWithIdResponseDto.toDto(savePost);
     }
 
     @Transactional
-    public PageResponseDto<FindAllPostResponseDto> findAllPost(Pageable pageable) {
+    public PageResponseDto<PostListResponseDto> findAllPosts(Pageable pageable) {
 
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
@@ -104,35 +89,22 @@ public class PostService {
         }
         
         // 페이지 반환
-        return new PageResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
+        return new PageResponseDto<>(postPage.map(PostListResponseDto::toPostDto));
 
     }
 
 
     // 게시글 단건 조회 기능
     @Transactional
-    public FindOnePostResponseDto findOnePost(Long id) {
+    public PostWithNickResponseDto findOnePost(Long id) {
 
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        FindOnePostResponseDto responseDto = new FindOnePostResponseDto(
-                id,
-                post.getUser().getNickname(),
-                post.getTitle(),
-                post.getContents(),
-                post.getImageUrl(),
-                post.getUserUrl(),
-                post.getPostLikes().size(),
-                post.getComments().size(),
-                post.getCreatedAt(),
-                post.getModifiedAt()
-        );
-
-        return responseDto;
+        return PostWithNickResponseDto.toDto(id, post);
     }
 
-    public PageResponseDto<FindAllPostResponseDto> findPostsByPeriod(
+    public PageResponseDto<PostListResponseDto> findPostsByPeriod(
             LocalDate startDate, LocalDate endDate, Pageable pageable)
     {
         LocalDateTime start = startDate.atStartOfDay(); // 해당일 00:00:00
@@ -151,23 +123,23 @@ public class PostService {
         // 게시글 조회 -> 페이징 처리
         Page<Post> postPage = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end, Postpageable);
 
-        return new PageResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
+        return new PageResponseDto<>(postPage.map(PostListResponseDto::toPostDto));
     }
 
 
     @Transactional
     public Post findPostById(Long id) {
-        Optional<Post> findPost = postRepository.findById(id);
-        return findPost.get();
+        return postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 
 
     // Post 게시글 수정 기능
     @Transactional
-    public UpdatePostResponseDto updatedPost(Long id, Long currentUserId, String title, String contents, String imageUrl) {
+    public PostUpdateResponseDto updatedPost(Long id, Long currentUserId, String title, String contents, String imageUrl) {
 
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
 
         if (currentUserId.equals(post.getUser().getId())) {
@@ -191,20 +163,7 @@ public class PostService {
             throw new CustomException(ErrorCode.POST_NOT_OWNED);
         }
 
-        UpdatePostResponseDto responseDto = new UpdatePostResponseDto(
-                post.getId(),
-                post.getUser().getNickname(),
-                post.getTitle(),
-                post.getContents(),
-                post.getImageUrl(),
-                post.getUserUrl(),
-                post.getPostLikes().size(),
-                post.getComments().size(),
-                post.getCreatedAt(),
-                post.getModifiedAt()
-        );
-
-        return responseDto;
+        return PostUpdateResponseDto.toDto(post);
     }
 
     // 게시글 삭제 기능
@@ -213,7 +172,7 @@ public class PostService {
 
         // 입력받은 아이디로 Post 불러오기
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (currentUserId.equals(post.getUser().getId())) {
             // 입력한 비밀번호와 유저 비밀번호가 같은지 검증

@@ -1,4 +1,4 @@
-package com.example.newspeed.user.dto;
+package com.example.newspeed.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
