@@ -1,23 +1,39 @@
 package com.example.newspeed.user.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.newspeed.auth.dto.CustomUserDetails;
 import com.example.newspeed.auth.dto.TokenDto;
 import com.example.newspeed.auth.jwt.TokenCookieUtils;
 import com.example.newspeed.auth.jwt.TokenExtractor;
 import com.example.newspeed.auth.service.AuthService;
 import com.example.newspeed.global.dto.PageResponseDto;
-import com.example.newspeed.user.dto.*;
+import com.example.newspeed.user.dto.UserCreateRequestDto;
+import com.example.newspeed.user.dto.UserCreateResponseDto;
+import com.example.newspeed.user.dto.UserDeleteRequestDto;
+import com.example.newspeed.user.dto.UserFindResponseDto;
+import com.example.newspeed.user.dto.UserFindWithFollowResponseDto;
+import com.example.newspeed.user.dto.UserUpdatePasswordRequestDto;
+import com.example.newspeed.user.dto.UserUpdateProfileRequestDto;
+import com.example.newspeed.user.dto.UserUpdateProfileResponseDto;
 import com.example.newspeed.user.service.UserService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -133,15 +149,14 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-        /**
-         * 유저 생성 (회원탈퇴)
-         *
-         * @param requestDto 비밀번호
-         * @param request
-         * @param response
-         * @return -
-         */
-
+    /**
+     * 유저 삭제 (회원탈퇴)
+     *
+     * @param requestDto 비밀번호
+     * @param request
+     * @param response
+     * @return -
+     */
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UserDeleteRequestDto requestDto,
                                            HttpServletRequest request, HttpServletResponse response) {
