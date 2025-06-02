@@ -1,6 +1,7 @@
 package com.example.newspeed.user.repository;
 
-import com.example.newspeed.user.entity.User;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import com.example.newspeed.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
@@ -35,4 +36,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 유저, 유저당 포스트 수 카운트
     @Query("SELECT u.id, COUNT(p) FROM User u LEFT JOIN u.posts p GROUP BY u.id")
     List<Object[]> countPostsGroupedByUser();
+
+    boolean existsByEmail(String email);
 }
