@@ -45,40 +45,29 @@ public class WhiteListManager {
         String requestUri = request.getRequestURI();
         String requestMethod = request.getMethod();
 
-        if(isLoggedIn){
+        if(!isLoggedIn){
             if(isLogoutOnlyUris(requestUri, response)) return true;
         }
         //if(isPublicUris(requestUri, response)) return true; //isOnlyLogoutUris 겹치는 기능. 추후 사용 고려
         if(isPublicGetUris(requestUri,requestMethod , response)) return true;
+        filterException.writeExceptionResponse(response);
         return false;
     }
 
     //로그아웃 상태에서만 집입가능한 uri
     public boolean isLogoutOnlyUris(String requestUri, HttpServletResponse response) throws IOException{
-        if (isWhitelistedUri(LOGOUT_ONLY_URIS, requestUri)) {
-            filterException.writeExceptionResponse(response);
-            return false;
-        }
-        return true;
+        return isWhitelistedUri(LOGOUT_ONLY_URIS, requestUri);
     }
 
     //로그인 없이 진입가능한 uri -> 추후 사용
     public boolean isPublicUris(String requestUri, HttpServletResponse response) throws IOException{
-        if (!isWhitelistedUri(PUBLIC_URIS, requestUri)) {
-            filterException.writeExceptionResponse(response);
-            return false;
-        }
-        return true;
+        return isWhitelistedUri(PUBLIC_URIS, requestUri);
     }
 
     //로그인 없이 진입가능한 Get uri (post)
     private boolean isPublicGetUris(String requestUri,String requestMethod , HttpServletResponse response) throws IOException{
         boolean isWhiteList = isStartsWithWhitelistedUri(ONLY_GET_PUBLIC_URI, requestUri);
-        if (isWhiteList && "GET".equalsIgnoreCase(requestMethod)) {
-            return true;
-        }
-        filterException.writeExceptionResponse(response);
-        return false;
+        return isWhiteList && "GET".equalsIgnoreCase(requestMethod);
     }
 
     //유효성 검증 무시 uri
