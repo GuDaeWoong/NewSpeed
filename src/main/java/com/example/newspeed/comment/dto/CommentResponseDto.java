@@ -4,7 +4,6 @@ import com.example.newspeed.comment.entity.Comment;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-
 import java.time.LocalDateTime;
 
 @Getter
@@ -40,7 +39,7 @@ public class CommentResponseDto {
                 comment.getUser().getId(),
                 comment.getUser().getNickname(),
                 comment.getUser().getUserUrl(),
-                comment.getPost().getId(),
+                comment.getPost().getPostId(),
                 comment.getContents(),
                 comment.getCreatedAt(),
                 comment.getModifiedAt()

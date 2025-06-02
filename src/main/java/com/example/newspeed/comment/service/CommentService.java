@@ -47,7 +47,7 @@ public class CommentService {
                 saveComment.getUser().getId(),
                 saveComment.getUser().getNickname(),
                 saveComment.getUser().getUserUrl(),
-                saveComment.getPost().getId(),
+                saveComment.getPost().getPostId(),
                 saveComment.getContents(),
                 saveComment.getCreatedAt(),
                 saveComment.getModifiedAt()
@@ -56,7 +56,7 @@ public class CommentService {
 
     public Page<CommentWithLikesDto> findAllCommentsByPostId(Long postId, Pageable pageable) {
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
-        int pageNumber = pageable.getPageNumber()-1 ;
+        int pageNumber = pageable.getPageNumber() - 1;
         // 요청 페이지 번호가 음수가 되는 것을 방지
         if (pageNumber < 0) {
             pageNumber = 0;
@@ -74,7 +74,7 @@ public class CommentService {
     @Transactional
     public CommentUpdateResponseDto updateComment(Long commentId, @Valid CommentRequestDto commentRequestDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
-        Comment comment= commentRepository.findById(commentId)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         if (!user.getId().equals(comment.getUser().getId())) {
             throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
@@ -90,14 +90,14 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentId, CommentDeleteDto deleteDto, Long currentUserId) {
         User user = userService.findUserById(currentUserId);
-        Comment comment= commentRepository.findById(commentId)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!user.getId().equals(comment.getUser().getId())) {
             throw new CustomException(ErrorCode.COMMENT_NOT_OWNED);
         }
 
-        if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(),user.getPassword())) {
+        if (!securityConfig.passwordEncoder().matches(deleteDto.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
         commentRepository.delete(comment);
