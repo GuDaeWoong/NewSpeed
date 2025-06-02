@@ -53,7 +53,7 @@ public class AuthController {
         //쿠키에서 refreshToken 리셋
         tokenCookieUtils.deleteRefreshTokenCookie(response);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/reissue")
