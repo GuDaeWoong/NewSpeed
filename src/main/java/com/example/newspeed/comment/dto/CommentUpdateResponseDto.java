@@ -1,5 +1,6 @@
 package com.example.newspeed.comment.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class CommentUpdateResponseDto {
 
+    @NotBlank
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
