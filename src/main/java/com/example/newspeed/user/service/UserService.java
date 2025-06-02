@@ -1,5 +1,15 @@
 package com.example.newspeed.user.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
@@ -11,15 +21,9 @@ import com.example.newspeed.user.dto.UserFindWithFollowResponseDto;
 import com.example.newspeed.user.dto.UserUpdateProfileResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,11 @@ public class UserService {
     // 유저 생성 (회원가입)
     @Transactional
     public UserCreateResponseDto createUser(String email, String nickname, String userUrl, String password) {
+        // 중복 이메일이라면 예외처리
+        if (userRepository.existsByEmail(email)) {
+            throw new CustomException(ErrorCode.USER_ALREADY_EXISTS);
+        }
+
         // 암호화
         String encodePassword = passwordManager.encodePassword(password);
 
@@ -40,8 +49,15 @@ public class UserService {
     }
 
 
+    /**
+     * 특정 유저 조회
+     * @param userId 조회할 유저 ID
+     * @return 조회 유저 정보 + 조회 유저의 팔로우 수, 팔로워 수, 작성 게시글 수 반환
+     */
+
     public UserFindResponseDto findByIdUser(Long userId) {
-        User findUser = userRepository.findByIdOrElseThrow(userId);
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 팔로우 수 카운팅
         long followCount = followService.getFollowCount(userId);
