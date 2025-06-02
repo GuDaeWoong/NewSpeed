@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.newspeed.auth.service.AuthService;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
     private final FollowService followService;
+    private final AuthService authService;
 
     // 유저 생성 (회원가입)
     @Transactional
@@ -185,14 +188,21 @@ public class UserService {
 
     // 유저 삭제
     @Transactional
-    public void deleteUser(Long userId, String password) {
+    public void deleteUser(String accessToken, String refreshToken,Long userId, String password) {
 
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
         // 요청 받은 currentPassword와 현재 DB의 비밀번호가 일치하는지 확인
         passwordManager.validatePasswordMatchOrThrow(password, findUser.getPassword());
 
+        // 유저 삭제
         userRepository.deleteById(userId);
+
+        // Access 토큰 블랙리스트 등록
+        authService.addAccessTokenToBlackList(accessToken);
+
+        // Refresh 토큰 삭제
+        authService.deleteRefreshToken(refreshToken);
     }
 
     public Map<Long, Long> getFollowedCountMap() {
@@ -206,4 +216,5 @@ public class UserService {
         }
         return map;
     }
+
 }

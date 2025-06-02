@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.newspeed.auth.dto.CustomUserDetails;
-import com.example.newspeed.auth.dto.TokenDto;
 import com.example.newspeed.auth.jwt.TokenCookieUtils;
 import com.example.newspeed.auth.jwt.TokenExtractor;
 import com.example.newspeed.auth.service.AuthService;
@@ -168,12 +167,10 @@ public class UserController {
         String accessToken = tokenExtractor.extractAccessTokenFromHeader(request).orElse(null);
         String refreshToken = tokenExtractor.extractRefreshTokenFromCookie(request).orElse(null);
 
-        authService.logout(new TokenDto(accessToken,refreshToken));
+        userService.deleteUser(accessToken, refreshToken, currentUserId, requestDto.getPassword());
 
         //쿠키에서 refreshToken 리셋
         tokenCookieUtils.deleteRefreshTokenCookie(response);
-
-        userService.deleteUser(currentUserId, requestDto.getPassword());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
