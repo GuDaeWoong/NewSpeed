@@ -74,11 +74,11 @@ public class WhiteListManager {
     //로그인 없이 진입가능한 Get uri (post)
     private boolean isPublicGetUris(String requestUri,String requestMethod , HttpServletResponse response) throws IOException{
         boolean isWhiteList = isStartsWithWhitelistedUri(ONLY_GET_PUBLIC_URI, requestUri);
-        if (isWhiteList && !"GET".equalsIgnoreCase(requestMethod)) {
-            filterException.writeExceptionResponse(response);
-            return false;
+        if (isWhiteList && "GET".equalsIgnoreCase(requestMethod)) {
+            return true;
         }
-        return true;
+        filterException.writeExceptionResponse(response);
+        return false;
     }
 
     //유효성 검증 무시 uri
