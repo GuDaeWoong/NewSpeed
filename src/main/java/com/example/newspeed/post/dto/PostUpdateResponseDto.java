@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 @Getter
 public class PostUpdateResponseDto {
 
-    private final Long id;
+    private final Long postId;
+    private final Long userId;
     private final String nickname;
     private final String title;
     private final String contents;
@@ -19,7 +20,8 @@ public class PostUpdateResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public PostUpdateResponseDto(Long id,
+    public PostUpdateResponseDto(Long postId,
+                                 Long userId,
                                  String nickname,
                                  String title,
                                  String contents,
@@ -30,7 +32,8 @@ public class PostUpdateResponseDto {
                                  LocalDateTime createdAt,
                                  LocalDateTime modifiedAt
     ) {
-        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
         this.nickname = nickname;
         this.title = title;
         this.contents = contents;
@@ -44,7 +47,8 @@ public class PostUpdateResponseDto {
 
     public static PostUpdateResponseDto toDto(Post post){
         return new PostUpdateResponseDto(
-                post.getId(),
+                post.getPostId(),
+                post.getUser().getId(),
                 post.getUser().getNickname(),
                 post.getTitle(),
                 post.getContents(),

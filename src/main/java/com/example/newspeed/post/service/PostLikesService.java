@@ -26,7 +26,7 @@ public class PostLikesService {
 
         Post post = getPostById(postLikesDto.getPostId());
 
-        if(postLikesRepository.findByUserIdAndPostId(user.getId(), post.getId()).isPresent()){
+        if(postLikesRepository.findByUserIdAndPostPostId(user.getId(), post.getPostId()).isPresent()){
             throw new CustomException(ErrorCode.ALREADY_LIKE);
         };
 
@@ -39,7 +39,7 @@ public class PostLikesService {
 
         Post post = getPostById(postLikesDto.getPostId());
 
-        PostLikes findPostLikes = postLikesRepository.findByUserIdAndPostId(user.getId(), post.getId())
+        PostLikes findPostLikes = postLikesRepository.findByUserIdAndPostPostId(user.getId(), post.getPostId())
                 .orElseThrow(()-> new CustomException(ErrorCode.NOT_LIKE));
 
         postLikesRepository.delete(findPostLikes);
@@ -49,8 +49,8 @@ public class PostLikesService {
         return userService.findUserById(id);
     }
 
-    private Post getPostById(Long id){
-        return postRepository.findById(id)
+    private Post getPostById(Long postId){
+        return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 }
