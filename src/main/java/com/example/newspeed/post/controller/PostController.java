@@ -3,7 +3,6 @@ import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import com.example.newspeed.user.dto.CustomUserDetails;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -13,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.util.List;
 
 
 @RestController
@@ -28,7 +26,7 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody PostRequestDto dto) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
