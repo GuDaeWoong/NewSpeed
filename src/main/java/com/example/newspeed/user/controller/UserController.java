@@ -19,15 +19,10 @@ import com.example.newspeed.auth.dto.TokenDto;
 import com.example.newspeed.auth.jwt.TokenCookieUtils;
 import com.example.newspeed.auth.jwt.TokenExtractor;
 import com.example.newspeed.auth.service.AuthService;
+import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.dto.PageResponseDto;
-import com.example.newspeed.user.dto.UserCreateRequestDto;
-import com.example.newspeed.user.dto.UserCreateResponseDto;
-import com.example.newspeed.user.dto.UserDeleteRequestDto;
-import com.example.newspeed.user.dto.UserFindResponseDto;
-import com.example.newspeed.user.dto.UserFindWithFollowResponseDto;
-import com.example.newspeed.user.dto.UserUpdatePasswordRequestDto;
-import com.example.newspeed.user.dto.UserUpdateProfileRequestDto;
-import com.example.newspeed.user.dto.UserUpdateProfileResponseDto;
+import com.example.newspeed.global.error.CustomException;
+import com.example.newspeed.user.dto.*;
 import com.example.newspeed.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,10 +65,16 @@ public class UserController {
 
     /**
      * 로그인 유저 정보 조회 (마이페이지 조회)
-     * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
+     * @param userDetails 로그인 유저 정보를 담고 있는 객체
+     * @return 정상 조회 시 로그인된 유저의 유저 정보 + 200 OK 반환
      */
     @GetMapping("/me")
     public ResponseEntity<UserFindResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new CustomException(ErrorCode.REQUIRED_LOGIN);
+        }
+
         Long currentUserId = userDetails.getId();
 
         UserFindResponseDto userFindResponseDto = userService.findByIdUser(currentUserId);
