@@ -40,8 +40,15 @@ public class UserService {
     }
 
 
+    /**
+     * 특정 유저 조회
+     * @param userId 조회할 유저 ID
+     * @return 조회 유저 정보 + 조회 유저의 팔로우 수, 팔로워 수, 작성 게시글 수 반환
+     */
+
     public UserFindResponseDto findByIdUser(Long userId) {
-        User findUser = userRepository.findByIdOrElseThrow(userId);
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 팔로우 수 카운팅
         long followCount = followService.getFollowCount(userId);
