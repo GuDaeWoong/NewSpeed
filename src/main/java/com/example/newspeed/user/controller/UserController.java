@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final AuthService authService;
+    private final TokenExtractor tokenExtractor;
+    private final TokenCookieUtils tokenCookieUtils;
 
     /**
      * 유저 생성 (회원가입)
@@ -142,8 +144,15 @@ public class UserController {
                                            HttpServletRequest request, HttpServletResponse response) {
 
         Long currentUserId = userDetails.getId();
-      
-        authService.logout(request, response);
+
+        //Header 에서 Token 가져오기
+        String accessToken = tokenExtractor.extractAccessTokenFromHeader(request).orElse(null);
+        String refreshToken = tokenExtractor.extractRefreshTokenFromCookie(request).orElse(null);
+
+        authService.logout(new TokenDto(accessToken,refreshToken));
+
+        //쿠키에서 refreshToken 리셋
+        tokenCookieUtils.deleteRefreshTokenCookie(response);
 
         userService.deleteUser(currentUserId, requestDto.getPassword());
 

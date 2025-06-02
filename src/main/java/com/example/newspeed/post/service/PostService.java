@@ -45,17 +45,17 @@ public class PostService {
         Post newPost = new Post(user, title, contents, imageUrl);
 
         // 게시글 생성 시 제목이 비어있을 시 예외처리
-        if (newPost.getTitle() == null) {
+        if (newPost.getTitle() == null || newPost.getTitle().trim().isEmpty()) {
             throw new CustomException(ErrorCode.POST_NOT_TITLE);
         }
 
         // 게시글 생성 시 내용이 비어있을 시 예외처리
-        if (newPost.getContents() == null) {
+        if (newPost.getContents() == null || newPost.getContents().trim().isEmpty()) {
             throw new CustomException(ErrorCode.POST_NOT_CONTENTS);
         }
 
         // 게시글 생성 시 이미지가 비어있을 시 예외처리
-        if (newPost.getImageUrl() == null) {
+        if (newPost.getImageUrl() == null || newPost.getImageUrl().trim().isEmpty()) {
             throw new CustomException(ErrorCode.POST_NOT_IMAGE);
         }
 
@@ -147,17 +147,18 @@ public class PostService {
                 throw new CustomException(ErrorCode.POST_NOT_CHANGE);
             }
 
-            if (title != null) {
+            if (title != null && !title.trim().isEmpty()) {
                 post.setTitle(title);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_TITLE);
 
-            if (contents != null) {
+            if (contents != null && !contents.trim().isEmpty()) {
                 post.setContents(contents);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_CONTENTS);
 
-            if (imageUrl != null) {
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                 post.setImageUrl(imageUrl);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_IMAGE);
+
         } else {
             throw new CustomException(ErrorCode.POST_NOT_OWNED);
         }
