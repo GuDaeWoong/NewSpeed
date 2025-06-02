@@ -60,15 +60,10 @@ public class PostController {
     @PostMapping("/search")
     public ResponseEntity<PageResponseDto<FindAllPostResponseDto>> searchPostByPeriod(
             @RequestBody SearchPeriodRequestDto requestDto,
-            @RequestParam (defaultValue = "1") int page,
-            @RequestParam (defaultValue = "10") int size
+            @PageableDefault(page = 1, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-
-        // Page -> 0-based 로 변환
-        page -= 1;
-
         PageResponseDto<FindAllPostResponseDto> searchPost =
-                postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate(), page, size);
+                postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate(), pageable);
 
         return new ResponseEntity<>(searchPost, HttpStatus.OK);
     }

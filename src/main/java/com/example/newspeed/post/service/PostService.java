@@ -136,17 +136,23 @@ public class PostService {
     }
 
     public PageResponseDto<FindAllPostResponseDto> findPostsByPeriod(
-            LocalDate startDate, LocalDate endDate,
-            int page, int size)
+            LocalDate startDate, LocalDate endDate, Pageable pageable)
     {
         LocalDateTime start = startDate.atStartOfDay(); // 해당일 00:00:00
         LocalDateTime end = endDate.atTime(LocalTime.MAX); // 해당일 23:59:59까지 포함
 
+        // Pageable 의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable 로 변환
+        int pageNumber = pageable.getPageNumber()-1 ;
+        // 요청 페이지 번호가 음수가 되는 것을 방지
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+
         // Pageable 객체 생성 -> 페이지 번호, 크기, 정렬 설정
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("modifiedAt")));
+        Pageable Postpageable = PageRequest.of(pageNumber, pageable.getPageSize(), pageable.getSort());
 
         // 게시글 조회 -> 페이징 처리
-        Page<Post> postPage = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end, pageable);
+        Page<Post> postPage = postRepository.findAllByCreatedAtBetweenOrderByModifiedAtDesc(start, end, Postpageable);
 
         return new PageResponseDto<>(postPage.map(FindAllPostResponseDto::toPostDto));
     }
