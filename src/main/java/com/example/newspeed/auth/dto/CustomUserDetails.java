@@ -1,5 +1,7 @@
 package com.example.newspeed.auth.dto;
 
+import com.example.newspeed.global.Enums.ErrorCode;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +17,11 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public Long getId() {
-        return user.getId();
+        Long userId = user.getId();
+        if(userId == null){
+            throw new CustomException(ErrorCode.INVALID_ACCESS);
+        };
+        return userId;
     }
 
     @Override
