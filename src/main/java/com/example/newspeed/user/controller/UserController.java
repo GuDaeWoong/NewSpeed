@@ -1,6 +1,6 @@
 package com.example.newspeed.user.controller;
 
-import com.example.newspeed.auth.jwt.JwtTokenProvider;
+import com.example.newspeed.auth.dto.CustomUserDetails;
 import com.example.newspeed.auth.service.AuthService;
 import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.user.dto.*;
@@ -16,15 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final AuthService authService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 유저 생성 (회원가입)
@@ -33,9 +30,9 @@ public class UserController {
      * @return 생성된 유저 정보
      */
     @PostMapping("/signup")
-    public ResponseEntity<CreateUserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto requestDto) {
+    public ResponseEntity<UserCreateResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto requestDto) {
 
-        CreateUserResponseDto responseDto = userService.createUser(requestDto.getEmail(),
+        UserCreateResponseDto responseDto = userService.createUser(requestDto.getEmail(),
                                                                    requestDto.getNickname(),
                                                                    requestDto.getUserUrl(),
                                                                    requestDto.getPassword());
@@ -43,11 +40,11 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<FindUserResponseDto> findByIdUser(@PathVariable Long userId) {
+    public ResponseEntity<UserFindResponseDto> findByIdUser(@PathVariable Long userId) {
 
-        FindUserResponseDto findUserResponseDto = userService.findByIdUser(userId);
+        UserFindResponseDto userFindResponseDto = userService.findByIdUser(userId);
 
-        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(userFindResponseDto, HttpStatus.OK);
     }
 
     /**
@@ -55,12 +52,12 @@ public class UserController {
      * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
      */
     @GetMapping("/me")
-    public ResponseEntity<FindUserResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<UserFindResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long currentUserId = userDetails.getId();
 
-        FindUserResponseDto findUserResponseDto = userService.findByIdUser(currentUserId);
+        UserFindResponseDto userFindResponseDto = userService.findByIdUser(currentUserId);
 
-        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(userFindResponseDto, HttpStatus.OK);
     }
 
     /**
@@ -70,9 +67,9 @@ public class UserController {
      * @return
      */
     @GetMapping
-    public ResponseEntity<PageResponseDto<FindUserResponseDto>> findAllUsers(@PageableDefault(page = 1) Pageable pageable) {
+    public ResponseEntity<PageResponseDto<UserFindResponseDto>> findAllUsers(@PageableDefault(page = 1) Pageable pageable) {
 
-        PageResponseDto<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(pageable);
+        PageResponseDto<UserFindResponseDto> findUserResponseDto = userService.findAllUsersPaged(pageable);
 
         return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
     }
@@ -85,13 +82,12 @@ public class UserController {
      * @return
      */
     @GetMapping("/with-follow")
-    public ResponseEntity<PageResponseDto<FindUserWithFollowResponseDto>> findUsersWithFollow(
+    public ResponseEntity<PageResponseDto<UserFindWithFollowResponseDto>> findUsersWithFollow(
             @AuthenticationPrincipal CustomUserDetails userDetails, @PageableDefault(page = 1) Pageable pageable) {
 
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
-        PageResponseDto<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, pageable);
+        PageResponseDto<UserFindWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, pageable);
 
         return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
     }
@@ -103,12 +99,12 @@ public class UserController {
      * @return 로그인 유저 id + 변경 후 닉네임, 프로필이미지url
      */
     @PatchMapping("/profile")
-    public ResponseEntity<UpdateProfileResponseDto> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UpdateProfileRequestDto requestDto) {
+    public ResponseEntity<UserUpdateProfileResponseDto> updateProfile(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody UserUpdateProfileRequestDto requestDto) {
 
         // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
-        UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
+        UserUpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
                 requestDto.getNickname(),
                 requestDto.getUserUrl(),
                 requestDto.getPassword());
@@ -122,9 +118,8 @@ public class UserController {
      * @return -
      */
     @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UpdatePasswordRequestDto requestDto) {
+    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UserUpdatePasswordRequestDto requestDto) {
 
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
         userService.updatePassword(currentUserId,
@@ -143,7 +138,7 @@ public class UserController {
          */
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody DeleteUserRequestDto requestDto,
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails,@Valid @RequestBody UserDeleteRequestDto requestDto,
                                            HttpServletRequest request, HttpServletResponse response) {
 
         Long currentUserId = userDetails.getId();

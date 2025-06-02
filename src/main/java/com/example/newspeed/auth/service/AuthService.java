@@ -5,7 +5,7 @@ import com.example.newspeed.auth.jwt.TokenExtractor;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.global.error.CustomException;
-import com.example.newspeed.user.dto.LoginRequestDto;
+import com.example.newspeed.auth.dto.LoginRequestDto;
 import com.example.newspeed.auth.dto.TokenResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.LoginRepository;

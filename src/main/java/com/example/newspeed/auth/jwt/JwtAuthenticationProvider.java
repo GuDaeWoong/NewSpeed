@@ -3,7 +3,7 @@ package com.example.newspeed.auth.jwt;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.global.error.FilterException;
-import com.example.newspeed.user.dto.CustomUserDetails;
+import com.example.newspeed.auth.dto.CustomUserDetails;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;

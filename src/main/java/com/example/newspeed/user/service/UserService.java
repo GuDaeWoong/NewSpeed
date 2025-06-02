@@ -5,10 +5,10 @@ import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.global.error.CustomException;
-import com.example.newspeed.user.dto.CreateUserResponseDto;
-import com.example.newspeed.user.dto.FindUserResponseDto;
-import com.example.newspeed.user.dto.FindUserWithFollowResponseDto;
-import com.example.newspeed.user.dto.UpdateProfileResponseDto;
+import com.example.newspeed.user.dto.UserCreateResponseDto;
+import com.example.newspeed.user.dto.UserFindResponseDto;
+import com.example.newspeed.user.dto.UserFindWithFollowResponseDto;
+import com.example.newspeed.user.dto.UserUpdateProfileResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,21 +27,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordManager passwordManager;
     private final FollowService followService;
-//    private final PostService postService;
 
     // 유저 생성 (회원가입)
     @Transactional
-    public CreateUserResponseDto createUser(String email, String nickname, String userUrl, String password) {
+    public UserCreateResponseDto createUser(String email, String nickname, String userUrl, String password) {
         // 암호화
         String encodePassword = passwordManager.encodePassword(password);
 
         // 유저 생성
         User user = new User(email, nickname, userUrl, encodePassword);
-        return CreateUserResponseDto.toDto(userRepository.save(user));
+        return UserCreateResponseDto.toDto(userRepository.save(user));
     }
 
 
-    public FindUserResponseDto findByIdUser(Long userId) {
+    public UserFindResponseDto findByIdUser(Long userId) {
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
         // 팔로우 수 카운팅
@@ -53,17 +52,17 @@ public class UserService {
         // 유저가 작성한 게시글 수 카운팅
         Long postCount = userRepository.countPostsByUserId(userId);
 
-        return FindUserResponseDto.toDto(findUser, followCount, followedCount, postCount);
+        return UserFindResponseDto.toDto(findUser, followCount, followedCount, postCount);
     }
 
 
     public User findUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        return user.get();
+        return userRepository.findById(userId)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     // 유저 조회
-    public PageResponseDto<FindUserResponseDto> findAllUsersPaged(Pageable pageable) {
+    public PageResponseDto<UserFindResponseDto> findAllUsersPaged(Pageable pageable) {
 
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
@@ -87,22 +86,22 @@ public class UserService {
         Map<Long, Long> postCounts = getFollowedCountMap();
 
         // 응담 Dto에 맞춰 변환
-        List<FindUserResponseDto> responseDtos = new ArrayList<>();
+        List<UserFindResponseDto> responseDtos = new ArrayList<>();
         for (User user : userPage) {
             long followCount = followCounts.getOrDefault(user.getId(), 0L);
             long followedCount = followedCounts.getOrDefault(user.getId(), 0L);
             long postCount = postCounts.getOrDefault(user.getId(), 0L);
 
-            responseDtos.add(FindUserResponseDto.toDto(user, followCount, followedCount, postCount));
+            responseDtos.add(UserFindResponseDto.toDto(user, followCount, followedCount, postCount));
         }
 
         // 페이지Dto에 적용하여 반환
-        Page<FindUserResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
+        Page<UserFindResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
         return new PageResponseDto<>(dtoPage);
     }
 
     // 유저 전체 조회 + 팔로우 여부 체크
-    public PageResponseDto<FindUserWithFollowResponseDto> findUserWithFollow(Long userId, Pageable pageable) {
+    public PageResponseDto<UserFindWithFollowResponseDto> findUserWithFollow(Long userId, Pageable pageable) {
 
         // Pageable의 페이지 번호가 1부터 시작한다고 가정하고, 0부터 시작하는 Pageable로 변환
         int pageNumber = pageable.getPageNumber()-1 ;
@@ -124,20 +123,20 @@ public class UserService {
         List<Long> followingIdList = followService.findFollowIdsByUserId(userId);
 
         // 응담 Dto에 맞춰 변환
-        List<FindUserWithFollowResponseDto> responseDtos = new ArrayList<>();
+        List<UserFindWithFollowResponseDto> responseDtos = new ArrayList<>();
         for (User user : userPage) {
             boolean isFollow = followingIdList.contains(user.getId());
-            responseDtos.add(FindUserWithFollowResponseDto.toDto(user, isFollow));
+            responseDtos.add(UserFindWithFollowResponseDto.toDto(user, isFollow));
         }
 
         // 페이지Dto에 적용하여 반환
-        Page<FindUserWithFollowResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
+        Page<UserFindWithFollowResponseDto> dtoPage = new PageImpl<>(responseDtos, adjustedPageable, userPage.getTotalElements());
         return new PageResponseDto<>(dtoPage);
     }
 
     // 유저 프로필 수정
     @Transactional
-    public UpdateProfileResponseDto updateProfile(Long userId, String nickname, String userUrl, String password) {
+    public UserUpdateProfileResponseDto updateProfile(Long userId, String nickname, String userUrl, String password) {
 
         User findUser = userRepository.findByIdOrElseThrow(userId);
 
@@ -148,7 +147,7 @@ public class UserService {
         findUser.updateProfile(nickname, userUrl);
         userRepository.save(findUser);
 
-        return UpdateProfileResponseDto.toDto(findUser);
+        return UserUpdateProfileResponseDto.toDto(findUser);
     }
 
     // 유저 비밀번호 수정

@@ -1,4 +1,4 @@
-package com.example.newspeed.user.dto;
+package com.example.newspeed.auth.dto;
 
 import com.example.newspeed.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;

@@ -1,4 +1,4 @@
-package com.example.newspeed.user.entity;
+package com.example.newspeed.auth.entity;
 
 import com.example.newspeed.global.entity.BaseEntity;
 import jakarta.persistence.*;

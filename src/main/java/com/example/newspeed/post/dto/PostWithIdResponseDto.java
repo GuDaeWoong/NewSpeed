@@ -1,14 +1,14 @@
 package com.example.newspeed.post.dto;
 
+import com.example.newspeed.post.entity.Post;
 import lombok.Getter;
-
 import java.time.LocalDateTime;
 
 @Getter
-public class UpdatePostResponseDto {
+public class PostWithIdResponseDto {
 
     private final Long id;
-    private final String nickname;
+    private final Long userId;
     private final String title;
     private final String contents;
     private final String imageUrl;
@@ -18,8 +18,8 @@ public class UpdatePostResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public UpdatePostResponseDto(Long id,
-                                 String nickname,
+    public PostWithIdResponseDto(Long id,
+                                 Long userId,
                                  String title,
                                  String contents,
                                  String imageUrl,
@@ -30,7 +30,7 @@ public class UpdatePostResponseDto {
                                  LocalDateTime modifiedAt
     ) {
         this.id = id;
-        this.nickname = nickname;
+        this.userId = userId;
         this.title = title;
         this.contents = contents;
         this.imageUrl = imageUrl;
@@ -40,4 +40,21 @@ public class UpdatePostResponseDto {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
+
+    public static PostWithIdResponseDto toDto(Post savePost){
+         return new PostWithIdResponseDto
+                (
+                        savePost.getId(),
+                        savePost.getUser().getId(),
+                        savePost.getTitle(),
+                        savePost.getContents(),
+                        savePost.getImageUrl(),
+                        savePost.getUser().getUserUrl(),
+                        savePost.getPostLikes().size(),
+                        savePost.getComments().size(),
+                        savePost.getCreatedAt(),
+                        savePost.getModifiedAt()
+                );
+    }
+
 }

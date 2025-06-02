@@ -1,6 +1,7 @@
-package com.example.newspeed.user.entity;
+package com.example.newspeed.auth.entity;
 
 import com.example.newspeed.global.entity.BaseEntity;
+import com.example.newspeed.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

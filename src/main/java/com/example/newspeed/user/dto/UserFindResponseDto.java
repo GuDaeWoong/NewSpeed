@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class FindUserResponseDto {
+public class UserFindResponseDto {
 
     private final Long userId;
 
@@ -26,7 +26,7 @@ public class FindUserResponseDto {
 
     private final LocalDateTime modifiedAt;
 
-    public FindUserResponseDto(
+    public UserFindResponseDto(
             Long userId, String email, String nickname, String userUrl,
             Long followCount, Long followerCount, Long postCount,
             LocalDateTime createdAt, LocalDateTime modifiedAt)
@@ -42,8 +42,8 @@ public class FindUserResponseDto {
         this.modifiedAt = modifiedAt;
     }
 
-    public static FindUserResponseDto toDto (User user, long followCount, long followerCount, Long postCount) {
-        return new FindUserResponseDto(
+    public static UserFindResponseDto toDto (User user, long followCount, long followerCount, Long postCount) {
+        return new UserFindResponseDto(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),

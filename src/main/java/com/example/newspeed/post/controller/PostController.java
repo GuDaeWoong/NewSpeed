@@ -2,7 +2,7 @@ package com.example.newspeed.post.controller;
 import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
-import com.example.newspeed.user.dto.CustomUserDetails;
+import com.example.newspeed.auth.dto.CustomUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -11,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.util.List;
 
 
 @RestController
@@ -28,59 +25,57 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostWithIdResponseDto> createPost(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody PostRequestDto dto) {
 
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
         Long currentUserId = userDetails.getId();
 
-        PostResponseDto responseDto = postService.createPost(currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        PostWithIdResponseDto responseDto = postService.createPost(currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<PageResponseDto<FindAllPostResponseDto>> findAllAPI(
+    public ResponseEntity<PageResponseDto<PostListResponseDto>> findAllPosts(
             @PageableDefault(page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     )
     {
-        PageResponseDto<FindAllPostResponseDto> allPost = postService.findAllPost(pageable);
+        PageResponseDto<PostListResponseDto> allPost = postService.findAllPosts(pageable);
 
         return new ResponseEntity<>(allPost, HttpStatus.OK);
     }
 
     // 게시글 단건 조회 API
     @GetMapping("/{id}")
-    public ResponseEntity<FindOnePostResponseDto> findOneAPI(@PathVariable Long id) {
+    public ResponseEntity<PostWithNickResponseDto> findOnePost(@PathVariable Long id) {
 
-        FindOnePostResponseDto findOnePost = postService.findOnePost(id);
+        PostWithNickResponseDto findOnePost = postService.findOnePost(id);
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
 
     @PostMapping("/search")
-    public ResponseEntity<PageResponseDto<FindAllPostResponseDto>> searchPostByPeriod(
-            @RequestBody SearchPeriodRequestDto requestDto,
+    public ResponseEntity<PageResponseDto<PostListResponseDto>> findPostsByPeriod(
+            @RequestBody PostPeriodRequestDto requestDto,
             @PageableDefault(page = 1, sort = "modifiedAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        PageResponseDto<FindAllPostResponseDto> searchPost =
+        PageResponseDto<PostListResponseDto> searchPost =
                 postService.findPostsByPeriod(requestDto.getStartDate(), requestDto.getEndDate(), pageable);
 
         return new ResponseEntity<>(searchPost, HttpStatus.OK);
     }
 
-
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdatePostResponseDto> updatedPostAPI(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable Long id, @RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostUpdateResponseDto> updatePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long id, @RequestBody PostRequestDto dto) {
 
         Long currentUserId = userDetails.getId();
 
-        UpdatePostResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        PostUpdateResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePostAPI(@AuthenticationPrincipal CustomUserDetails userDetails,@PathVariable Long id, @RequestBody DeletePostRequestDto dto) {
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long id, @RequestBody PostDeleteRequestDto dto) {
 
         Long currentUserId = userDetails.getId();
 

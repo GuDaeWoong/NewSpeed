@@ -1,7 +1,7 @@
 package com.example.newspeed.auth.service;
 
 import com.example.newspeed.auth.repository.TokenBlackListRepository;
-import com.example.newspeed.user.entity.TokenBlackList;
+import com.example.newspeed.auth.entity.TokenBlackList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

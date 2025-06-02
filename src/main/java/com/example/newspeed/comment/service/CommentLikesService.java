@@ -5,8 +5,11 @@ import com.example.newspeed.comment.entity.Comment;
 import com.example.newspeed.comment.entity.CommentLikes;
 import com.example.newspeed.comment.repository.CommentLikesRepository;
 import com.example.newspeed.comment.repository.CommentRepository;
+import com.example.newspeed.global.Enums.ErrorCode;
+import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.UserRepository;
+import com.example.newspeed.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,28 +18,41 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CommentLikesService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final CommentRepository commentRepository;
     private final CommentLikesRepository commentLikesRepository;
 
-    public void likes(CommentLikesDto commentLikesDto) {
-        Long userId = commentLikesDto.getUserId();
-        Long commentId = commentLikesDto.getCommentId();
+    public void addLikes(CommentLikesDto commentLikesDto) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("요청자 유저 없음"));
+        User user = getUserById(commentLikesDto.getUserId());
 
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalArgumentException("좋아요 대상 게시글 없음"));
+        Comment comment = getCommentById(commentLikesDto.getCommentId());
 
-        Optional<CommentLikes> checkedLikes = commentLikesRepository.findByUserIdAndCommentId(userId, commentId);
+        if(commentLikesRepository.findByUserIdAndCommentId(user.getId(), comment.getId()).isPresent()){
+            throw new CustomException(ErrorCode.ALREADY_LIKE);
+        };
 
-        if(checkedLikes.isPresent()){
-            // 좋아요 상태면 안좋아요
-            commentLikesRepository.delete(checkedLikes.get());
-        }else{
-            // 안좋아요 상태면 좋아요
-            commentLikesRepository.save(new CommentLikes(user, comment));
-        }
+        commentLikesRepository.save(new CommentLikes(user, comment));
+
+    }
+
+    public void deleteLikes(CommentLikesDto commentLikesDto) {
+        User user = getUserById(commentLikesDto.getUserId());
+
+        Comment comment = getCommentById(commentLikesDto.getCommentId());
+
+        CommentLikes findCommentLikes = commentLikesRepository.findByUserIdAndCommentId(user.getId(), comment.getId())
+                .orElseThrow(()->  new CustomException(ErrorCode.NOT_LIKE));
+
+        commentLikesRepository.delete(findCommentLikes);
+    }
+
+    private User getUserById(Long id) {
+        return userService.findUserById(id);
+    }
+
+    private Comment getCommentById(Long id){
+        return commentRepository.findById(id)
+                .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 }

@@ -2,7 +2,7 @@ package com.example.newspeed.auth.controller;
 
 import com.example.newspeed.auth.jwt.*;
 import com.example.newspeed.auth.dto.AccessTokenResponseDto;
-import com.example.newspeed.user.dto.LoginRequestDto;
+import com.example.newspeed.auth.dto.LoginRequestDto;
 import com.example.newspeed.auth.dto.TokenResponseDto;
 import com.example.newspeed.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;

@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateUserResponseDto {
+public class UserCreateResponseDto {
     private Long id;
     private String nickname;
     private String email;
@@ -14,8 +14,8 @@ public class CreateUserResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static CreateUserResponseDto toDto(User user) {
-        final CreateUserResponseDto response = new CreateUserResponseDto();
+    public static UserCreateResponseDto toDto(User user) {
+        final UserCreateResponseDto response = new UserCreateResponseDto();
 
         response.id = user.getId();
         response.nickname = user.getNickname();

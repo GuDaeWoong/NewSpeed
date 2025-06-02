@@ -3,11 +3,11 @@ package com.example.newspeed.post.dto;
 import lombok.Getter;
 
 @Getter
-public class DeletePostRequestDto {
+public class PostDeleteRequestDto {
 
     private final String password;
 
-    public DeletePostRequestDto(String password) {
+    public PostDeleteRequestDto(String password) {
         this.password = password;
     }
 }
