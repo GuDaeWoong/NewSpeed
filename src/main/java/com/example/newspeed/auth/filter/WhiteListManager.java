@@ -36,8 +36,7 @@ public class WhiteListManager {
 
     //토큰 유효성 검사 무시하는 URI
     private static final String[] NO_AUTH_REQUIRED_URIS = {
-            "/api/reissue",
-            "/api/logout"
+            "/api/reissue"
     };
 
     //화이트 리스트 판별
