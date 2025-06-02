@@ -41,19 +41,4 @@ public class GlobalExceptionHandler {
         ExceptionDto exceptionDto = new ExceptionDto(e.getStatus(), e.getMessage());
         return ResponseEntity.status(e.getStatus()).body(exceptionDto);
     }
-
-    @ExceptionHandler(CommentNotFoundException.class)
-    public ResponseEntity<String> handleCommentNotFoundException(CommentNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<String> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<String> handlePasswordMismatchException(PasswordMismatchException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
-    }
 }

@@ -1,11 +1,11 @@
 package com.example.newspeed.auth.service;
 
 import com.example.newspeed.auth.dto.AccessTokenDto;
+import com.example.newspeed.auth.dto.TokenDto;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.auth.dto.LoginRequestDto;
-import com.example.newspeed.auth.dto.TokenResponseDto;
 import com.example.newspeed.user.entity.User;
 import com.example.newspeed.user.repository.LoginRepository;
 import lombok.RequiredArgsConstructor;
