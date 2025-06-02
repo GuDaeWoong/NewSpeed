@@ -28,21 +28,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //헤더에서 토큰 생성
         String accessToken = tokenExtractor.extractAccessTokenFromHeader(request).orElse(null);
 
-        //로그인 상태 확인
+        //로그인 상태 확인 (유효성 검사, 블랙리스트 확인
         boolean isLoggedIn = jwtTokenProvider.isLoggedIn(accessToken);
 
         //로그인 상태와 화이트리스트 판별하여 조건에 따라 예외처리.
         if(!whiteListManager.isWhiteList(isLoggedIn, request, response)) return;
 
         //로그인 상태라면 access 토큰 security 저장. 로그아웃 상태라면 clear
-        jwtAuthenticationProvider.setTokenToSecurityContextOrClear(accessToken, isLoggedIn, response);
+        jwtAuthenticationProvider.setTokenToSecurityContextOrClear(accessToken, isLoggedIn);
 
         // 다음 필터로 넘김
         filterChain.doFilter(request,response);
 
     }
-
-
-
 
 }
