@@ -18,20 +18,20 @@ import org.springframework.web.bind.annotation.*;
 public class PostLikesController {
     private final PostLikesService postLikesService;
 
-    @PostMapping("/{id}/likes")
-    public ResponseEntity<Void> addLikes(@PathVariable @Min(1) Long id, @AuthenticationPrincipal CustomUserDetails userDetails){
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<Void> addLikes(@PathVariable @Min(1) Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
         Long userId = userDetails.getId();
 
-        postLikesService.addLikes(new PostLikesDto(userId, id));
+        postLikesService.addLikes(new PostLikesDto(userId, postId));
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}/likes")
-    public ResponseEntity<Void> deleteLikes(@PathVariable @Min(1) Long id, @AuthenticationPrincipal CustomUserDetails userDetails){
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<Void> deleteLikes(@PathVariable @Min(1) Long postId, @AuthenticationPrincipal CustomUserDetails userDetails){
         Long userId = userDetails.getId();
 
-        postLikesService.deleteLikes(new PostLikesDto(userId, id));
+        postLikesService.deleteLikes(new PostLikesDto(userId, postId));
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -87,7 +87,7 @@ public class PostService {
         if (postPage.isEmpty() && pageNumber >= postPage.getTotalPages()) {
             throw new CustomException(ErrorCode.PAGE_NOT_FOUND);
         }
-        
+
         // 페이지 반환
         return new PageResponseDto<>(postPage.map(PostListResponseDto::toPostDto));
 
@@ -96,12 +96,12 @@ public class PostService {
 
     // 게시글 단건 조회 기능
     @Transactional
-    public PostWithNickResponseDto findOnePost(Long id) {
+    public PostWithNickResponseDto findOnePost(Long postId) {
 
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        return PostWithNickResponseDto.toDto(id, post);
+        return PostWithNickResponseDto.toDto(postId, post);
     }
 
     public PageResponseDto<PostListResponseDto> findPostsByPeriod(
@@ -136,9 +136,9 @@ public class PostService {
 
     // Post 게시글 수정 기능
     @Transactional
-    public PostUpdateResponseDto updatedPost(Long id, Long currentUserId, String title, String contents, String imageUrl) {
+    public PostUpdateResponseDto updatedPost(Long postId, Long currentUserId, String title, String contents, String imageUrl) {
 
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
 
@@ -168,10 +168,10 @@ public class PostService {
 
     // 게시글 삭제 기능
     @Transactional
-    public void deletePost(Long id, Long currentUserId, String password) {
+    public void deletePost(Long postId, Long currentUserId, String password) {
 
         // 입력받은 아이디로 Post 불러오기
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (currentUserId.equals(post.getUser().getId())) {
@@ -184,4 +184,3 @@ public class PostService {
         }
     }
 }
-

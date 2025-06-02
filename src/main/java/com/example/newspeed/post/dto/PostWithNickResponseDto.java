@@ -8,7 +8,8 @@ import java.time.LocalDateTime;
 @Getter
 public class PostWithNickResponseDto {
 
-    private final Long id;
+    private final Long postId;
+    private final Long userId;
     private final String nickname;
     private final String title;
     private final String contents;
@@ -19,7 +20,8 @@ public class PostWithNickResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public PostWithNickResponseDto(Long id,
+    public PostWithNickResponseDto(Long postId,
+                                   Long userId,
                                    String nickname,
                                    String title,
                                    String contents,
@@ -30,7 +32,8 @@ public class PostWithNickResponseDto {
                                    LocalDateTime createdAt,
                                    LocalDateTime modifiedAt
     ) {
-        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
         this.nickname = nickname;
         this.title = title;
         this.contents = contents;
@@ -42,9 +45,10 @@ public class PostWithNickResponseDto {
         this.modifiedAt = modifiedAt;
     }
 
-    public static PostWithNickResponseDto toDto(Long id, Post post){
+    public static PostWithNickResponseDto toDto(Long postId, Post post){
         return new PostWithNickResponseDto(
-                id,
+                postId,
+                post.getUser().getId(),
                 post.getUser().getNickname(),
                 post.getTitle(),
                 post.getContents(),

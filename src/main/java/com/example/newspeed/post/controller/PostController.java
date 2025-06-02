@@ -3,7 +3,6 @@ import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.post.dto.*;
 import com.example.newspeed.post.service.PostService;
 import com.example.newspeed.auth.dto.CustomUserDetails;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,7 +24,7 @@ public class PostController {
 
 
     @PostMapping
-    public ResponseEntity<PostWithIdResponseDto> createPost(@AuthenticationPrincipal CustomUserDetails userDetails, @Valid @RequestBody PostRequestDto dto) {
+    public ResponseEntity<PostWithIdResponseDto> createPost(@AuthenticationPrincipal CustomUserDetails userDetails,  @RequestBody PostRequestDto dto) {
 
         Long currentUserId = userDetails.getId();
 
@@ -45,10 +44,10 @@ public class PostController {
     }
 
     // 게시글 단건 조회 API
-    @GetMapping("/{id}")
-    public ResponseEntity<PostWithNickResponseDto> findOnePost(@PathVariable Long id) {
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostWithNickResponseDto> findOnePost(@PathVariable Long postId) {
 
-        PostWithNickResponseDto findOnePost = postService.findOnePost(id);
+        PostWithNickResponseDto findOnePost = postService.findOnePost(postId);
 
         return new ResponseEntity<>(findOnePost, HttpStatus.OK);
     }
@@ -64,22 +63,22 @@ public class PostController {
         return new ResponseEntity<>(searchPost, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<PostUpdateResponseDto> updatePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long id, @RequestBody PostRequestDto dto) {
+    @PatchMapping("/{postId}")
+    public ResponseEntity<PostUpdateResponseDto> updatePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long postId, @RequestBody PostRequestDto dto) {
 
         Long currentUserId = userDetails.getId();
 
-        PostUpdateResponseDto responseDto = postService.updatedPost(id, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
+        PostUpdateResponseDto responseDto = postService.updatedPost(postId, currentUserId, dto.getTitle(), dto.getContents(), dto.getImageUrl());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long id, @RequestBody PostDeleteRequestDto dto) {
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long postId, @RequestBody PostDeleteRequestDto dto) {
 
         Long currentUserId = userDetails.getId();
 
-        postService.deletePost(id, currentUserId, dto.getPassword());
+        postService.deletePost(postId, currentUserId, dto.getPassword());
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
