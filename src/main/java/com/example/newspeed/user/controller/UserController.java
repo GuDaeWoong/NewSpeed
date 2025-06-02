@@ -2,12 +2,15 @@ package com.example.newspeed.user.controller;
 
 import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.auth.service.AuthService;
+import com.example.newspeed.global.dto.PageResponseDto;
 import com.example.newspeed.user.dto.*;
 import com.example.newspeed.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,6 +51,52 @@ public class UserController {
     }
 
     /**
+     * 로그인 유저 정보 조회 (마이페이지 조회)
+     * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
+     */
+    @GetMapping("/me")
+    public ResponseEntity<FindUserResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long currentUserId = userDetails.getId();
+
+        FindUserResponseDto findUserResponseDto = userService.findByIdUser(currentUserId);
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 전체 유저 조회
+     *
+     * @param pageable
+     * @return
+     */
+    @GetMapping
+    public ResponseEntity<PageResponseDto<FindUserResponseDto>> findAllUsers(@PageableDefault(page = 1) Pageable pageable) {
+
+        PageResponseDto<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(pageable);
+
+        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
+    }
+
+    /**
+     * 유저 전체 조회 + 팔로우 여부 체크
+     *
+     * @param userDetails
+     * @param pageable
+     * @return
+     */
+    @GetMapping("/with-follow")
+    public ResponseEntity<PageResponseDto<FindUserWithFollowResponseDto>> findUsersWithFollow(
+            @AuthenticationPrincipal CustomUserDetails userDetails, @PageableDefault(page = 1) Pageable pageable) {
+
+        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
+        Long currentUserId = userDetails.getId();
+
+        PageResponseDto<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, pageable);
+
+        return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
+    }
+
+    /**
      * 로그인 유저 프로필 수정
      *
      * @param requestDto 닉네임, 프로필이미지url, 패스워드
@@ -60,9 +109,9 @@ public class UserController {
         Long currentUserId = userDetails.getId();
 
         UpdateProfileResponseDto responseDto = userService.updateProfile(currentUserId,
-                                                                         requestDto.getNickname(),
-                                                                         requestDto.getUserUrl(),
-                                                                         requestDto.getPassword());
+                requestDto.getNickname(),
+                requestDto.getUserUrl(),
+                requestDto.getPassword());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -79,52 +128,9 @@ public class UserController {
         Long currentUserId = userDetails.getId();
 
         userService.updatePassword(currentUserId,
-                                   requestDto.getCurrentPassword(),
-                                   requestDto.getNewPassword());
+                requestDto.getCurrentPassword(),
+                requestDto.getNewPassword());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    /**
-     * 로그인 유저 정보 조회 (마이페이지 조회)
-     * @return 정상 조회 시 JWT 토큰으로 확인한 로그인 유저의 유저 정보 + 200 OK 반환
-     */
-    @GetMapping("/me")
-    public ResponseEntity<FindUserResponseDto> findMyPage(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long currentUserId = userDetails.getId();
-
-        FindUserResponseDto findUserResponseDto = userService.findByIdUser(currentUserId);
-
-        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
-    }
-
-    /**
-     * 전체 유저 조회
-     *
-     * @param page 페이지
-     * @param size 페이지 사이즈
-     * @return 조회된 유저 리스트
-     */
-    @GetMapping
-    public ResponseEntity<List<FindUserResponseDto>> findAllUsers(@RequestParam(defaultValue = "1") int page,
-                                                                  @RequestParam(defaultValue = "10") int size) {
-
-        List<FindUserResponseDto> findUserResponseDto = userService.findAllUsersPaged(page, size);
-
-        return new ResponseEntity<>(findUserResponseDto, HttpStatus.OK);
-    }
-
-
-    @GetMapping("/with-follow")
-    public ResponseEntity<List<FindUserWithFollowResponseDto>> findUsersWithFollow(
-            @AuthenticationPrincipal CustomUserDetails userDetails,@RequestParam(defaultValue = "1") int page,
-                                                                                   @RequestParam(defaultValue = "10") int size) {
-
-        // JwtTokenProvider를 통해 로그인 유저 ID 가져오기
-        Long currentUserId = userDetails.getId();
-
-        List<FindUserWithFollowResponseDto> userWithFollow = userService.findUserWithFollow(currentUserId, page, size);
-
-        return new ResponseEntity<>(userWithFollow, HttpStatus.OK);
     }
 
         /**
