@@ -1,11 +1,10 @@
 package com.example.newspeed.comment.controller;
 
 
+import com.example.newspeed.auth.dto.CustomUserDetails;
 import com.example.newspeed.comment.dto.*;
 import com.example.newspeed.comment.service.CommentService;
 import com.example.newspeed.global.dto.PageResponseDto;
-import com.example.newspeed.auth.dto.CustomUserDetails;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,13 +58,12 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@AuthenticationPrincipal CustomUserDetails userDetails,
                                               @PathVariable Long commentId,
-                                              @RequestBody CommentDeleteDto deleteDto
+                                              @Valid @RequestBody CommentDeleteDto deleteDto
     ) {
         Long currentUserId = userDetails.getId();
         commentService.deleteComment(commentId, deleteDto, currentUserId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
 
 }
