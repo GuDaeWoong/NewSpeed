@@ -21,7 +21,7 @@ public class WhiteListManager {
             "/api/posts"
     };
 
-    //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능 > 현재 LOGOUT_ONLY_URIS 겹치므로 사용 X
+    //로그아웃 상태 진입 URI - 게시글 보기는 로그아웃 상태에서도 진입 가능
     private static final String[] PUBLIC_URIS = {
             "/api/users/signup",
             "/api/login"
@@ -45,11 +45,14 @@ public class WhiteListManager {
         String requestUri = request.getRequestURI();
         String requestMethod = request.getMethod();
 
-        if(!isLoggedIn){
-            if(isLogoutOnlyUris(requestUri, response)) return true;
+        //로그인 상태
+        if(isLoggedIn){
+            return !isLogoutOnlyUris(requestUri, response);
+            //비로그인 상태
+        }else{
+            if(isPublicUris(requestUri, response)) return true;
+            if(isPublicGetUris(requestUri,requestMethod , response)) return true;
         }
-        //if(isPublicUris(requestUri, response)) return true; //isOnlyLogoutUris 겹치는 기능. 추후 사용 고려
-        if(isPublicGetUris(requestUri,requestMethod , response)) return true;
         filterException.writeExceptionResponse(response);
         return false;
     }
