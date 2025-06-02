@@ -1,6 +1,5 @@
 package com.example.newspeed.post.service;
 
-import com.example.newspeed.comment.dto.CommentWithLikesDto;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.common.PasswordManager;
 
@@ -176,17 +175,18 @@ public class PostService {
                 throw new CustomException(ErrorCode.POST_NOT_CHANGE);
             }
 
-            if (title != null) {
+            if (title != null && !title.trim().isEmpty()) {
                 post.setTitle(title);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_TITLE);
 
-            if (contents != null) {
+            if (contents != null && !contents.trim().isEmpty()) {
                 post.setContents(contents);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_CONTENTS);
 
-            if (imageUrl != null) {
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
                 post.setImageUrl(imageUrl);
-            }
+            } else throw new CustomException(ErrorCode.POST_NOT_IMAGE);
+
         } else {
             throw new CustomException(ErrorCode.POST_NOT_OWNED);
         }
