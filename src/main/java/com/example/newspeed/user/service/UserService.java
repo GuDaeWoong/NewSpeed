@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.newspeed.auth.service.AuthService;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;

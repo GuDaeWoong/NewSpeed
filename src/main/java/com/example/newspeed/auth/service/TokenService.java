@@ -3,8 +3,6 @@ package com.example.newspeed.auth.service;
 import com.example.newspeed.auth.dto.TokenDto;
 import com.example.newspeed.auth.jwt.JwtTokenProvider;
 import com.example.newspeed.auth.repository.TokenRepository;
-import com.example.newspeed.global.Enums.ErrorCode;
-import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.auth.entity.Token;
 import com.example.newspeed.user.entity.User;
 import lombok.RequiredArgsConstructor;

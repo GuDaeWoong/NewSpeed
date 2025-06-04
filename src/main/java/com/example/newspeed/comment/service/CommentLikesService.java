@@ -8,7 +8,6 @@ import com.example.newspeed.comment.repository.CommentRepository;
 import com.example.newspeed.global.Enums.ErrorCode;
 import com.example.newspeed.global.error.CustomException;
 import com.example.newspeed.user.entity.User;
-import com.example.newspeed.user.repository.UserRepository;
 import com.example.newspeed.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
